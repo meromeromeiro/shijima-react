@@ -1,182 +1,211 @@
 import React, { useState, useEffect } from 'react';
-import { APIURL } from '../utils'; // Assuming APIURL is defined in utils
 
-function PostForm({
-    selectedBoard, // Object: { id, name, intro }
-    currentThreadId,
-    userId,
-    userAuth,
-    onPostSuccess, // Callback to refresh threads
-}) {
-    const [title, setTitle] = useState('');
-    const [name, setName] = useState('');
-    const [txt, setTxt] = useState('');
-    const [pic, setPic] = useState('');
-    const [isDisabled, setIsDisabled] = useState(false);
-    const [showPostContainer, setShowPostContainer] = useState(false);
-
-    useEffect(() => {
-        setShowPostContainer(!!selectedBoard);
-        // Reset form when board changes or threadId changes (if replying in thread view)
-        setTitle('');
-        setName('');
-        setTxt('');
-        setPic('');
-    }, [selectedBoard, currentThreadId]);
+// 模拟 API 调用
+const mockSubmitPost = async (formData) => {
+  console.log("Submitting post:", formData);
+  await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟网络延迟
+  // 实际应用中，这里会调用你的后端 API
+  // 例如：
+  // const response = await fetch('/api/v2/post?...', { method: 'POST', body: JSON.stringify(formData) });
+  // if (!response.ok) throw new Error('Failed to post');
+  // return await response.json();
+  return { success: true, message: "发布成功！", data: { ...formData, no: Math.floor(Math.random() * 100000) } };
+};
 
 
-    const handlePostThread = async () => {
-        if ((txt.trim() === "" && pic.trim() === "") || !selectedBoard) {
-            return;
-        }
-        setIsDisabled(true);
+function PostForm({ isVisible, onClose, currentBoardId, currentThreadId, onPostSuccess }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState(''); // "sage" or other options might go here
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
-        const postData = {
-            m: "post",
-            tid: currentThreadId || 0, // If currentThreadId is present, it's a reply
-            bid: selectedBoard.id,
-            n: name, // Corresponds to 'name' in Vue (user's name for post)
-            t: title, // Corresponds to 'title' in Vue (post title)
-            id: userId,
-            auth: userAuth,
-            txt: txt,
-            p: pic,
-            page: 0, // This might need adjustment based on how your backend handles reply pages
-        };
+  const formTitle = currentThreadId ? `回复 No.${currentThreadId}` : (currentBoardId ? `在版块 ${currentBoardId} 发布新串` : "发布新串");
 
-        try {
-            // The original Vue code uses /api/ for posting, not APIURL
-            const response = await fetch("/api/", { //  IMPORTANT: Check this URL
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded', // Original uses this
-                },
-                // JSON.stringify for x-www-form-urlencoded is unusual.
-                // Typically, it would be new URLSearchParams(postData).toString()
-                // Sticking to original for now:
-                body: JSON.stringify(postData)
-            });
-            const data = await response.json();
+  // 当表单可见性变化或回复目标变化时，重置表单
+  useEffect(() => {
+    if (isVisible) {
+      setName('');
+      setEmail('');
+      setTitle('');
+      setContent('');
+      setImageFile(null);
+      setError(null);
+      setSuccessMessage(null);
+    }
+  }, [isVisible, currentBoardId, currentThreadId]);
 
-            if (data && data.length > 0) { // Assuming success means getting new thread/reply list
-                setTxt('');
-                setPic('');
-                setTitle('');
-                setName('');
-                if (onPostSuccess) {
-                    onPostSuccess(data); // Pass the new data back
-                }
-            } else if (data && data.tid && data.bid) { // Alternative success for single post confirmation
-                 setTxt('');
-                 setPic('');
-                 setTitle('');
-                 setName('');
-                 if (onPostSuccess) {
-                    onPostSuccess(); // Trigger refresh
-                 }
-            }
-             else {
-                // Handle error response from server, e.g., show a message
-                console.error("Post failed:", data);
-                alert("发言失败，请检查内容或稍后再试。");
-            }
-        } catch (error) {
-            console.error("Error posting thread:", error);
-            alert("发言时发生网络错误。");
-        } finally {
-            setIsDisabled(false);
-        }
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!content.trim() && !imageFile) {
+      setError("内容和图片至少需要一项。");
+      return;
+    }
+    setError(null);
+    setSuccessMessage(null);
+    setIsSubmitting(true);
+
+    const formData = {
+      n: name || "无名氏", // name
+      // email/sage functionality needs to be decided how to map to API
+      t: title, // title
+      txt: content, // content
+      // p: imageFile, // image needs proper handling (upload then path)
+      // r: currentThreadId, // reply to (if replying)
+      // num: currentBoardId // board id (if new thread)
     };
 
-    if (!showPostContainer || !selectedBoard) {
-        return null;
+    // 在实际应用中，你需要处理图片上传。
+    // 这里只是将信息放入 formData 对象。
+    // 如果是回复，API 需要 `r` (reply to thread ID)
+    // 如果是新串，API 可能需要 `bid` (board ID)
+    if (currentThreadId) {
+        formData.r = currentThreadId;
+    } else if (currentBoardId) {
+        // formData.bid = currentBoardId; // 或者 API 通过 URL 参数区分
     }
 
-    return (
-        <div className="poster-container mb-4 p-4 border border-gray-300 rounded bg-white shadow">
-            <div id="title" className="text-xl font-bold text-shijima-title mb-2">
-                {currentThreadId ? `回复 No.${currentThreadId}` : selectedBoard.name}
-            </div>
-            <div className="mx-auto w-auto">
-                <table className="w-full">
-                    <tbody>
-                        <tr>
-                            <td className="form-name text-right pr-2 py-1 w-1/6 text-shijima-text">标题：</td>
-                            <td className="py-1">
-                                <input
-                                    name="title"
-                                    size="28"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    maxLength="100"
-                                    type="text"
-                                    className="w-full p-1 border border-gray-400 rounded focus:border-shijima-blue-accent focus:ring-1 focus:ring-shijima-blue-accent outline-none"
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="form-name text-right pr-2 py-1 text-shijima-text">名称：</td>
-                            <td className="py-1 flex items-center">
-                                <input
-                                    name="name"
-                                    size="28"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    maxLength="100"
-                                    type="text"
-                                    className="w-full p-1 border border-gray-400 rounded focus:border-shijima-blue-accent focus:ring-1 focus:ring-shijima-blue-accent outline-none"
-                                />
-                                <input
-                                    value="送出"
-                                    type="submit"
-                                    onClick={handlePostThread}
-                                    disabled={isDisabled}
-                                    className="ml-2 px-4 py-1 bg-shijima-accent text-white rounded cursor-pointer hover:bg-opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="form-name text-right pr-2 py-1 align-top text-shijima-text">正文：</td>
-                            <td className="py-1">
-                                <textarea
-                                    rows="4"
-                                    cols="30"
-                                    value={txt}
-                                    onChange={(e) => setTxt(e.target.value)}
-                                    maxLength="10000"
-                                    onKeyDown={(e) => {
-                                        if (e.ctrlKey && e.key === 'Enter') {
-                                            handlePostThread();
-                                        }
-                                    }}
-                                    className="w-full p-1 border border-gray-400 rounded focus:border-shijima-blue-accent focus:ring-1 focus:ring-shijima-blue-accent outline-none"
-                                ></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="form-name text-right pr-2 py-1 text-shijima-text">图片：</td>
-                            <td className="py-1">
-                                <input
-                                    name="pic"
-                                    size="28"
-                                    value={pic}
-                                    onChange={(e) => setPic(e.target.value)}
-                                    maxLength="4096"
-                                    type="text"
-                                    placeholder="图片链接"
-                                    className="w-full p-1 border border-gray-400 rounded focus:border-shijima-blue-accent focus:ring-1 focus:ring-shijima-blue-accent outline-none"
-                                />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            {/* Hidden inputs for bid, tid, id, auth are handled in postData */}
-            <div className="mt-2 text-sm text-gray-600">
-                {selectedBoard.intro}
-            </div>
+
+    try {
+      // 实际的 API 调用
+      // const result = await postThread(formData, currentBoardId); // 假设 postThread 是你的 API 服务函数
+      const result = await mockSubmitPost(formData); // 使用模拟函数
+
+      if (result.success) {
+        setSuccessMessage(result.message || "发布成功！");
+        if (onPostSuccess) {
+          onPostSuccess(result.data); // 将新帖/回复数据传递回去
+        }
+        setTimeout(() => { // 成功后一段时间关闭表单
+            onClose();
+            setSuccessMessage(null);
+        }, 2000);
+      } else {
+        setError(result.message || "发布失败，请重试。");
+      }
+    } catch (err) {
+      setError(err.message || "发生错误，请重试。");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">{formTitle}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+            aria-label="关闭"
+          >
+            ×
+          </button>
         </div>
-    );
+
+        {error && <p className="mb-3 p-2 text-sm text-red-700 bg-red-100 rounded">{error}</p>}
+        {successMessage && <p className="mb-3 p-2 text-sm text-green-700 bg-green-100 rounded">{successMessage}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="post-name" className="block text-sm font-medium text-gray-700 mb-1">
+                名称
+              </label>
+              <input
+                type="text"
+                id="post-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="无名氏"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label htmlFor="post-email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email (选填, sage等)
+              </label>
+              <input
+                type="text"
+                id="post-email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="sage"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="post-title" className="block text-sm font-medium text-gray-700 mb-1">
+              标题 (选填)
+            </label>
+            <input
+              type="text"
+              id="post-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="post-content" className="block text-sm font-medium text-gray-700 mb-1">
+              内容 <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="post-content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows="5"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            ></textarea>
+          </div>
+          <div>
+            <label htmlFor="post-image" className="block text-sm font-medium text-gray-700 mb-1">
+              图片 (选填)
+            </label>
+            <input
+              type="file"
+              id="post-image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            {imageFile && <p className="mt-1 text-xs text-gray-500">已选择: {imageFile.name}</p>}
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              取消
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || (!content.trim() && !imageFile)}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              {isSubmitting ? '提交中...' : '发布'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
 
 export default PostForm;
