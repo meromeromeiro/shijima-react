@@ -1,44 +1,39 @@
-/* src/index.css */
-@import "tailwindcss";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Custom global styles if absolutely necessary */
 body {
-  @apply   font-['Helvetica_Neue',_Helvetica,_Arial,_sans-serif];
-  /* Mimicking: font:400 14px / 20px "Helvetica Neue",Helvetica,Arial,sans-serif; background:#fff; color:#444 */
-  /* Adjusted based on shijima.css */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #333;
+  background-color: #fff;
 }
 
-/* You can add more global styles or component base styles here if needed */
-/* For example, to mimic the original link colors if not handled by Tailwind directly */
-a {
+/* Replicating some h-* styles or uk-* styles if Tailwind isn't direct enough */
+.h-navbar-content {
+  font-weight: 500; /* Example */
 }
 
-/* Specific styles from shijima.css that are harder to do with pure Tailwind or for overrides */
-.left-panel {
-  /* overflow-x: hidden; from inline style */
-  /* width: 135px; from inline style */
-  /* text-align: center; from inline style */
+.h-threads-content a {
+  color: #007bff; /* Tailwind `text-blue-600` might be close */
+  text-decoration: underline;
+}
+.h-threads-content a:hover {
+  text-decoration: none;
 }
 
-.main-panel {
-  /* margin: auto auto 50px 140px; from h.desktop.css for #h-content */
+/* For dangerouslySetInnerHTML content from API */
+.parsed-html-content img {
+    max-width: 100%;
+    height: auto;
 }
-
-/* Table styles from poster-container, can be applied with Tailwind, but if complex: */
-#poster-continer table {
-  /* width: auto; margin: 0 auto; */
+.parsed-html-content br {
+    display: block; /* Ensure <br> tags work as expected */
+    content: "";
+    margin-top: 0.5em; /* Or adjust as needed */
 }
-#poster-continer .form-name {
-  /* text-align: right; */
-}
-
-.h-threads-content {
-  /* white-space: pre-line; */ /* Tailwind has whitespace-pre-line */
-}
-
-.h-threads-item-reply-icon {
-  /* For the "..." */
-}
+/* Style for specific font colors if they come from API and need to be standardized */
+.parsed-html-content font[color="red"] { color: red !important; }
+.parsed-html-content font[color="green"] { color: green !important; }
+.parsed-html-content font[color="#789922"] { color: #789922 !important; } /* For >>>>No. references */
+.parsed-html-content font[color="#707070"] { color: #707070 !important; } /* For "omitted replies" */

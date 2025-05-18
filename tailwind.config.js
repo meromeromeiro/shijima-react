@@ -1,29 +1,21 @@
-// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: [
-      "./index.html",
-      "./src/**/*.{js,ts,jsx,tsx}",
-    ],
-    theme: {
-      extend: {
-        colors: {
-          'shijima-bg': '#ffffee', // #ffe
-          'shijima-text': '#800000',
-          'shijima-red-light': '#cc0000', // #c00
-          'shijima-accent': '#eeaa88', // #ea8
-          'shijima-title': '#cc1105',
-          'shijima-name': '#117743',
-          'shijima-link': '#0077dd',
-          'shijima-link-hover': '#005599',
-          'shijima-ivory': 'ivory', // For header links
-          'shijima-dark-gray': '#333333', // For tooltips, offcanvas
-          'shijima-medium-gray': '#777777',
-          'shijima-light-gray': '#eeeeee',
-          'shijima-reply-bg': '#f0e0d6',
-          'shijima-blue-accent': '#3399ff', // For hr
-        }
-      },
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      // You can add custom theme settings here if needed
+      colors: {
+        'h-navbar-bg': '#f8f8f8', // Example, adjust to match UI Kit's default
+        'h-navbar-border': '#e7e7e7',
+        'h-link': '#007bff', // A generic link color
+        'h-text-secondary': '#707070',
+        'h-badge-warning-bg': '#f0ad4e', // approx uk-badge-warning
+        'h-badge-warning-text': '#fff',
+      }
     },
-    plugins: [],
-  }
+  },
+  plugins: [],
+}

@@ -1,23 +1,16 @@
-// vite.config.js (example proxy)
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 
-
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(), tailwindcss(),
-  ],
+  plugins: [react()],
   server: {
     proxy: {
-      '/shijima': { // Or just /api if your backend is structured that way
-        target: 'https://moonchan.xyz/shijima', // Your backend server
+      // Proxying /api/v2 requests to your backend
+      '/api/v2': {
+        target: 'http://127.25.5.18:8080', // e.g., http://localhost:8080 if backend is local
         changeOrigin: true,
-        // rewrite: (path) => path.replace(/^\/shijima/, '') // if you need to rewrite
-      },
-      '/api': { // For posting
-        target: 'https://moonchan.xyz/shijima',
-        changeOrigin: true,
+        // rewrite: (path) => path.replace(/^\/api\/v2/, '/api/v2') // Usually not needed if target path is same
       }
     }
   }
