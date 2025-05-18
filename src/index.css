@@ -1,39 +1,40 @@
+@import "tailwindcss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom global styles if absolutely necessary */
+/* Minimal global styles, primarily for content from dangerouslySetInnerHTML */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: #333;
-  background-color: #fff;
+  @apply bg-white text-gray-800 antialiased; /* Antialiased is a common nice-to-have */
 }
 
-/* Replicating some h-* styles or uk-* styles if Tailwind isn't direct enough */
-.h-navbar-content {
-  font-weight: 500; /* Example */
-}
-
-.h-threads-content a {
-  color: #007bff; /* Tailwind `text-blue-600` might be close */
-  text-decoration: underline;
-}
-.h-threads-content a:hover {
-  text-decoration: none;
-}
-
-/* For dangerouslySetInnerHTML content from API */
+/* Styles for HTML content injected via dangerouslySetInnerHTML */
 .parsed-html-content img {
-    max-width: 100%;
-    height: auto;
+  @apply max-w-full h-auto my-2; /* Added some margin for floated images */
 }
+
+.parsed-html-content a {
+  @apply text-blue-600 hover:text-blue-700 underline;
+}
+
+.parsed-html-content font[color="red"] {
+  color: red !important; /* Tailwind can't easily target attributes like this */
+}
+.parsed-html-content font[color="green"] {
+  color: green !important;
+}
+.parsed-html-content font[color="#789922"] { /* For >>No. references */
+  color: #789922 !important;
+}
+.parsed-html-content font[color="#707070"] { /* For "omitted replies" text color */
+  color: #707070 !important;
+}
+
 .parsed-html-content br {
-    display: block; /* Ensure <br> tags work as expected */
-    content: "";
-    margin-top: 0.5em; /* Or adjust as needed */
+    /* Standard BR behavior is usually fine. 
+       If specific spacing is needed after BR, it's often better 
+       to structure the source HTML with <p> tags or use CSS in source.
+       For now, relying on default browser behavior for <br>.
+    */
 }
-/* Style for specific font colors if they come from API and need to be standardized */
-.parsed-html-content font[color="red"] { color: red !important; }
-.parsed-html-content font[color="green"] { color: green !important; }
-.parsed-html-content font[color="#789922"] { color: #789922 !important; } /* For >>>>No. references */
-.parsed-html-content font[color="#707070"] { color: #707070 !important; } /* For "omitted replies" */

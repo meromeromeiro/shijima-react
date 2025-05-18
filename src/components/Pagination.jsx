@@ -4,8 +4,6 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   if (totalPages <= 1) return null;
 
   const pageNumbers = [];
-  // Logic for displaying page numbers (e.g., show first, last, current, and some neighbors)
-  // Simple version for now:
   let startPage = Math.max(1, currentPage - 2);
   let endPage = Math.min(totalPages, currentPage + 2);
 
@@ -20,18 +18,21 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     pageNumbers.push(i);
   }
 
+  const buttonBaseClass = "px-3 py-1.5 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50";
+  const inactiveButtonClass = "text-gray-400 cursor-not-allowed bg-gray-100";
+  const activeButtonClass = "text-blue-600 hover:bg-gray-100 border border-gray-300 bg-white";
+  const currentPageClass = "bg-blue-500 text-white border border-blue-500";
+
+
   return (
-    <div className="px-4 py-3"> {/* h-threads-pagination style */}
-      <ul className="flex justify-center items-center space-x-1 text-sm">
+    <div className="px-4 py-4">
+      <ul className="flex justify-center items-center space-x-1 sm:space-x-2">
         <li>
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className={`px-3 py-1.5 rounded ${
-              currentPage === 1 
-                ? 'text-gray-400 cursor-not-allowed' 
-                : 'text-blue-600 hover:bg-gray-100 border border-gray-300'
-            }`}
+            className={`${buttonBaseClass} ${currentPage === 1 ? inactiveButtonClass : activeButtonClass}`}
+            aria-label="Previous Page"
           >
             上一页
           </button>
@@ -40,9 +41,9 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         {startPage > 1 && (
           <>
             <li>
-              <button onClick={() => onPageChange(1)} className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-100 text-blue-600">1</button>
+              <button onClick={() => onPageChange(1)} className={`${buttonBaseClass} ${activeButtonClass}`}>1</button>
             </li>
-            {startPage > 2 && <li className="text-gray-500">...</li>}
+            {startPage > 2 && <li className="text-gray-500 px-1">...</li>}
           </>
         )}
 
@@ -50,11 +51,8 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
           <li key={number}>
             <button
               onClick={() => onPageChange(number)}
-              className={`px-3 py-1.5 rounded ${
-                currentPage === number 
-                  ? 'bg-blue-500 text-white border border-blue-500' 
-                  : 'text-blue-600 hover:bg-gray-100 border border-gray-300'
-              }`}
+              className={`${buttonBaseClass} ${currentPage === number ? currentPageClass : activeButtonClass}`}
+              aria-current={currentPage === number ? "page" : undefined}
             >
               {number}
             </button>
@@ -63,9 +61,9 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         
         {endPage < totalPages && (
           <>
-            {endPage < totalPages -1 && <li className="text-gray-500">...</li>}
+            {endPage < totalPages -1 && <li className="text-gray-500 px-1">...</li>}
             <li>
-              <button onClick={() => onPageChange(totalPages)} className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-100 text-blue-600">{totalPages}</button>
+              <button onClick={() => onPageChange(totalPages)} className={`${buttonBaseClass} ${activeButtonClass}`}>{totalPages}</button>
             </li>
           </>
         )}
@@ -74,19 +72,22 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
           <button
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
-            className={`px-3 py-1.5 rounded ${
-              currentPage === totalPages 
-                ? 'text-gray-400 cursor-not-allowed' 
-                : 'text-blue-600 hover:bg-gray-100 border border-gray-300'
-            }`}
+            className={`${buttonBaseClass} ${currentPage === totalPages ? inactiveButtonClass : activeButtonClass}`}
+            aria-label="Next Page"
           >
             下一页
           </button>
         </li>
-        {/* Optional: Link to last page explicitly like in HTML */}
-        {totalPages > 5 && currentPage < totalPages && (
+        
+        {totalPages > 5 && currentPage < totalPages && ( // Show "末页" only if not already near end
              <li>
-                <button onClick={() => onPageChange(totalPages)} className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-100 text-blue-600">末页</button>
+                <button 
+                    onClick={() => onPageChange(totalPages)} 
+                    className={`${buttonBaseClass} ${activeButtonClass} hidden sm:inline-block`} // Hide on very small screens if cluttered
+                    aria-label="Last Page"
+                >
+                    末页
+                </button>
             </li>
         )}
       </ul>

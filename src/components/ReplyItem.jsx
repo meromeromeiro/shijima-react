@@ -3,54 +3,48 @@ import React from 'react';
 function ReplyItem({ reply, opNo }) {
   if (!reply) return null;
   
-  const handleContentClick = (e) => {
-    // Example: if you want to handle clicks on >>No. links
-    if (e.target.tagName === 'A' && e.target.textContent.startsWith('>>No.')) {
-      // Potentially scroll to that reply if it's on the page, or fetch it
-      // console.log('Clicked on quote link:', e.target.textContent);
-    }
-  };
+  const uidContent = reply.id === 'Admin' 
+    ? <span className="font-semibold text-red-600">Admin</span> 
+    : reply.id;
 
   return (
-    <div className="pt-2 pb-1 pl-2 border-l-2 border-gray-200 mb-2"> {/* h-threads-reply-container style */}
-      {/* First Col */}
-      <p className="mb-1 text-xs">
-        <span className="font-semibold text-gray-700 mr-1.5">{reply.title}</span>
-        <span className="text-blue-500 mr-1.5">{reply.name}</span>
+    <div className="py-1.5 pl-3 border-l-2 border-gray-200 hover:bg-gray-50"> {/* Added hover effect */}
+      {/* Row 1: Title, Name, No */}
+      <div className="mb-0.5 flex flex-wrap items-baseline text-xs">
+        {reply.title && reply.title !== "无标题" && <h4 className="font-semibold text-gray-700 mr-1.5">{reply.title}</h4>}
+        {reply.name && <span className="text-blue-500 mr-1.5">{reply.name}</span>}
         <a 
-            href={`/m/t/${opNo}?r=${reply.no}`} // Link to the reply within the main thread
-            className="text-gray-500 hover:underline"
+            href={`/m/t/${opNo}?r=${reply.no}`}
+            className="text-gray-400 hover:underline hover:text-blue-500"
         >
             No.{reply.no}
         </a>
-      </p>
-      {/* Second Col */}
-      <p className="mb-1.5 text-xs text-gray-500">
+      </div>
+      {/* Row 2: Time, UID, PO indicator */}
+      <div className="mb-1 text-xs text-gray-500 flex items-center">
         <span>{reply.time}</span>
-        <span className="mx-1.5">ID: 
-          {reply.id === 'Admin' ? <font color="red" className="font-semibold">Admin</font> : reply.id}
-        </span>
+        <span className="mx-1.5">ID: {uidContent}</span>
         {reply.isPo && (
-          <span className="text-blue-600 text-xs font-medium">(PO主)</span>
+          <span className="text-blue-600 font-medium">(PO主)</span>
         )}
-      </p>
+      </div>
       
-      {/* Image and Content (Replies usually don't have images in this format, but can be added) */}
+      {/* Row 3: Image and Content (if replies can have images) */}
       {reply.thumbnail && (
-        <div className="flex mb-1.5">
-            <a href={reply.image} target="_blank" rel="noopener noreferrer" className="mr-2 flex-shrink-0">
+        <div className="mb-1.5">
+            <a href={reply.image} target="_blank" rel="noopener noreferrer" className="inline-block">
             <img 
                 src={reply.thumbnail} 
-                alt="Reply image" 
-                className="w-16 h-16 object-cover border border-gray-200"
+                alt=""
+                className="max-w-[64px] max-h-[64px] object-cover border border-gray-200 rounded-sm" // w-16 h-16 approx
+                loading="lazy"
             />
             </a>
         </div>
       )}
 
       <div 
-        className="text-sm text-gray-800 break-words parsed-html-content" // h-threads-content
-        onClick={handleContentClick}
+        className="text-sm text-gray-700 break-words parsed-html-content"
         dangerouslySetInnerHTML={{ __html: reply.content }}
       />
     </div>

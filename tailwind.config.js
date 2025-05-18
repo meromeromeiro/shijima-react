@@ -6,15 +6,13 @@ export default {
   ],
   theme: {
     extend: {
-      // You can add custom theme settings here if needed
-      colors: {
-        'h-navbar-bg': '#f8f8f8', // Example, adjust to match UI Kit's default
-        'h-navbar-border': '#e7e7e7',
-        'h-link': '#007bff', // A generic link color
-        'h-text-secondary': '#707070',
-        'h-badge-warning-bg': '#f0ad4e', // approx uk-badge-warning
-        'h-badge-warning-text': '#fff',
-      }
+      // Add custom theme settings here ONLY if truly necessary
+      // and not achievable with standard Tailwind or JIT.
+      // For example, if you absolutely need a very specific color
+      // not in Tailwind's palette that's used repeatedly.
+      // colors: {
+      //   'brand-blue': '#007bff',
+      // }
     },
   },
   plugins: [],

@@ -2,10 +2,10 @@ import React from 'react';
 
 function ForumInfo({ subTitle, header }) {
   return (
-    <div className="px-4 pt-4 pb-2"> {/* uk-container-center equivalent with padding */}
-      <h4 className="text-lg font-semibold text-gray-800">{subTitle}</h4>
-      <div className="text-sm text-gray-600">{header}</div>
-      <hr className="my-2 border-gray-300" />
+    <div className="px-4 pt-3 pb-2">
+      <h2 className="text-lg font-semibold text-gray-800">{subTitle}</h2>
+      {header && <p className="text-sm text-gray-600 mt-0.5">{header}</p>}
+      <hr className="mt-2 mb-0 border-gray-200" />
     </div>
   );
 }
