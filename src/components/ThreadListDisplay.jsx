@@ -79,7 +79,7 @@ function ThreadListDisplay({
                     bid={bid}
                     tid={tid}
                 />
-            ) : ( // Board view
+            ) : ( // Board view 
                 bid && !tid && (
                     lengthOfLastPage > 0 ? (
                         <button

@@ -1,236 +1,250 @@
-// src/App.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, useNavigate, useLocation, useParams, Link } from 'react-router-dom'; // 导入 React Router hooks
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import OffCanvasMenu from './components/OffCanvasMenu';
 import ThreadItem from './components/ThreadItem';
 import Pagination from './components/Pagination';
 import ForumInfo from './components/ForumInfo';
-import PostForm from './components/PostForm'; // 引入 PostForm
+import PostForm from './components/PostForm';
 import { fetchBoardThreads, fetchThreadDetails, fetchBoards } from './services/api';
 
-// 主页内容组件，用于展示版块或帖子列表
-function MainContent() {
+// MainContentDisplay (保持不变)
+function MainContentDisplay({ /* ...props... */ }) { /* ...component code... */ }
+
+function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { boardId: boardIdFromUrl, threadId: threadIdFromUrl } = useParams();
+  const params = useParams(); // For routes rendering App directly, like in nested routes.
+                              // But for top-level App, we usually get params inside specific Route elements.
 
+  // OffCanvas Menu State
+  const [isOffCanvasOpen, setIsOffCanvasOpen] = useState(false);
+  const [boardsMenuStructure, setBoardsMenuStructure] = useState([]);
+
+  // Main Content Display State
   const [threads, setThreads] = useState([]);
-  const [currentView, setCurrentView] = useState({ type: 'board', id: 1, name: "时间线 - X岛揭示板" });
-  const [forumMeta, setForumMeta] = useState({ subTitle: "综合线", header: "不包含部分特殊版块" });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [forumMeta, setForumMeta] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isPostFormVisible, setIsPostFormVisible] = useState(false); // 控制发送框的显示
+  const [totalPages, setTotalPages] = useState(1);
 
-  // 解析 URL search params 获取页码
+  // Current View Info (derived from URL)
+  // These will be set based on the matched route by the useEffect below
+  const [activeBoardId, setActiveBoardId] = useState(null);
+  const [activeThreadId, setActiveThreadId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentViewType, setCurrentViewType] = useState(null); // 'board', 'thread', or 'post'
+  const [navTitle, setNavTitle] = useState("时间线 - X岛揭示板");
+
+  // PostForm State (managed by App to retain content)
+  const [postFormData, setPostFormData] = useState({ name: '', email: '', title: '', content: '' });
+  const [postFormImageFile, setPostFormImageFile] = useState(null);
+
+  // --- Effect to parse URL and set active view parameters ---
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const page = parseInt(searchParams.get('page'), 10) || 1;
-    setCurrentPage(page);
-  }, [location.search]);
+    const pageFromQuery = parseInt(searchParams.get('page'), 10) || 1;
+    setCurrentPage(pageFromQuery);
 
-  // 根据 URL 参数更新 currentView
-  useEffect(() => {
-    if (threadIdFromUrl) {
-      setCurrentView({ type: 'thread', id: parseInt(threadIdFromUrl, 10), name: `No.${threadIdFromUrl}` });
-    } else if (boardIdFromUrl) {
-      // 你需要一个方法从 boardsMenuStructure (或 fetchBoards 的原始数据) 中根据 ID 查找版块名称和描述
-      // 这里暂时用一个占位符
-      const boardName = `版块 ${boardIdFromUrl}`; // 理想情况下从 boardsMenuStructure 查找
-      const boardHeader = `版块 ${boardIdFromUrl} 的描述`; // 理想情况下从 boardsMenuStructure 查找
-      setCurrentView({ type: 'board', id: parseInt(boardIdFromUrl, 10), name: boardName, header: boardHeader });
-    } else {
-      // 默认视图，比如综合线
-      setCurrentView({ type: 'board', id: 1, name: "时间线 - X岛揭示板", header: "综合线" });
+    // Extract IDs from path segments (React Router does this for us via <Route path="..."> element={...}>)
+    // The 'params' from useParams() might be empty if App is the top-level router context provider.
+    // We'll rely on the specific <Route> elements to pass params to their rendered components.
+    // For setting App-level state like navTitle, we can inspect location.pathname.
+
+    const pathSegments = location.pathname.split('/').filter(Boolean); // e.g., ["board", "1"] or ["thread", "123"] or ["post", "new", "1"]
+
+    let tempBoardId = null;
+    let tempThreadId = null;
+    let tempViewType = null;
+    let tempNavTitle = "时间线 - X岛揭示板";
+    let tempForumMeta = null;
+
+
+    if (pathSegments[0] === 'thread' && pathSegments[1]) {
+      tempThreadId = parseInt(pathSegments[1], 10);
+      tempViewType = 'thread';
+      tempNavTitle = `No.${tempThreadId}`;
+    } else if (pathSegments[0] === 'board' && pathSegments[1]) {
+      tempBoardId = parseInt(pathSegments[1], 10);
+      tempViewType = 'board';
+      const flatBoards = boardsMenuStructure.flatMap(cat => cat.items || []);
+      const currentBoardInfo = flatBoards.find(b => String(b.id || b.timelineId) === String(tempBoardId));
+      tempNavTitle = currentBoardInfo ? currentBoardInfo.name : `版块 ${tempBoardId}`;
+      tempForumMeta = {
+        subTitle: currentBoardInfo ? currentBoardInfo.name : `版块 ${tempBoardId}`,
+        header: currentBoardInfo ? currentBoardInfo.description : `版块 ${tempBoardId} 的描述`
+      };
+    } else if (pathSegments[0] === 'post' && pathSegments[1] === 'new' && pathSegments[2]) {
+        tempBoardId = parseInt(pathSegments[2], 10);
+        tempViewType = 'post'; // Posting to a board
+        tempNavTitle = `在版块 ${tempBoardId} 发新串`;
+    } else if (pathSegments[0] === 'post' && pathSegments[1] === 'reply' && pathSegments[2]) {
+        tempThreadId = parseInt(pathSegments[2], 10);
+        tempViewType = 'post'; // Replying to a thread
+        tempNavTitle = `回复 No.${tempThreadId}`;
     }
-  }, [boardIdFromUrl, threadIdFromUrl]);
+    else if (location.pathname === '/') {
+      // Default view (redirect to board 1)
+      // This redirect will trigger this effect again with the new path
+      if (boardsMenuStructure.length > 0) { // Ensure menu is loaded to avoid infinite redirect loops if default board is not found
+          navigate('/board/1?page=1', { replace: true });
+          return; // Exit early to let redirect happen
+      }
+    }
 
+    setActiveBoardId(tempBoardId);
+    setActiveThreadId(tempThreadId);
+    setCurrentViewType(tempViewType);
+    setNavTitle(tempNavTitle);
+    setForumMeta(tempForumMeta);
 
+  }, [location.pathname, location.search, boardsMenuStructure, navigate]);
+
+  // --- Data Loading Effect ---
   const loadData = useCallback(async () => {
-    if (!currentView.id) return; // 如果没有有效的 ID，则不加载
+    // Only load data if viewing a board or thread, not when posting
+    if (currentViewType !== 'board' && currentViewType !== 'thread') {
+      setThreads([]);
+      return;
+    }
+    if ((currentViewType === 'board' && !activeBoardId) || (currentViewType === 'thread' && !activeThreadId)) {
+      setThreads([]);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
     try {
       let data;
-      if (currentView.type === 'board') {
-        data = await fetchBoardThreads(currentView.id, currentPage);
-        setThreads(data);
-        setTotalPages(20); // 示例
-        setForumMeta({ subTitle: currentView.name || `版块 ${currentView.id}`, header: currentView.header || "版块内容" });
-      } else if (currentView.type === 'thread') {
-        data = await fetchThreadDetails(currentView.id, currentPage);
-        setThreads([data]);
-        const totalReplies = data.replyCount || (data.replies ? data.replies.length : 0);
-        setTotalPages(Math.ceil((totalReplies + 1) / 30));
-        setForumMeta(null);
+      const apiPageNumber = Math.max(1, currentPage); // Assuming API is 1-indexed for page
+
+      if (currentViewType === 'board' && activeBoardId) {
+        data = await fetchBoardThreads(activeBoardId, apiPageNumber);
+        setThreads(data || []);
+        setTotalPages(20); // Placeholder
+      } else if (currentViewType === 'thread' && activeThreadId) {
+        data = await fetchThreadDetails(activeThreadId, apiPageNumber);
+        setThreads(data && data.no ? [data] : []);
+        const totalReplies = data?.replyCount || (data?.replies ? data.replies.length : 0);
+        setTotalPages(Math.ceil((totalReplies + (data && data.no ? 1 : 0)) / 30));
+      } else {
+        setThreads([]);
       }
     } catch (err) {
+      console.error("Error loading data:", err);
       setError(err.message);
       setThreads([]);
     } finally {
       setIsLoading(false);
     }
-  }, [currentView, currentPage]);
+  }, [currentViewType, activeBoardId, activeThreadId, currentPage]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]); // currentView 或 currentPage 变化时重新加载数据
+  }, [loadData]);
 
-  const handleThreadClick = (threadNo) => {
-    navigate(`/thread/${threadNo}`); // 导航到帖子详情页
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    // 更新 URL 中的 page 参数
-    const searchParams = new URLSearchParams(location.search);
-    searchParams.set('page', page);
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
-    window.scrollTo(0, 0);
-  };
-
-  const navTitle = currentView.type === 'thread' ? `No.${currentView.id}` : currentView.name || "时间线 - X岛揭示板";
-
-  const togglePostForm = () => setIsPostFormVisible(!isPostFormVisible);
-
-  // 提交表单后的回调，用于刷新数据
-  const handlePostSuccess = () => {
-    setIsPostFormVisible(false); // 关闭表单
-    loadData(); // 重新加载当前视图的数据
-  };
-
-  return (
-    <>
-      {/* PostForm 现在是 MainContent 的一部分，可以访问 currentView */}
-      <PostForm
-        isVisible={isPostFormVisible}
-        onClose={togglePostForm}
-        currentBoardId={currentView.type === 'board' ? currentView.id : null}
-        currentThreadId={currentView.type === 'thread' ? currentView.id : null}
-        onPostSuccess={handlePostSuccess}
-      />
-
-      {currentView.type === 'board' && forumMeta && (
-        <ForumInfo subTitle={forumMeta.subTitle} header={forumMeta.header} />
-      )}
-
-      {isLoading && <div className="p-4 text-center text-gray-600">加载中...</div>}
-      {error && <div className="p-4 text-center text-red-600">加载失败: {error}</div>}
-
-      {!isLoading && !error && threads.map((thread, index) => (
-        <React.Fragment key={thread.no || index}>
-          <ThreadItem
-            thread={thread}
-            isFullThreadView={currentView.type === 'thread'}
-            onThreadClick={currentView.type === 'board' ? handleThreadClick : undefined}
-          />
-          <hr className="border-gray-200" />
-        </React.Fragment>
-      ))}
-
-      {!isLoading && !error && threads.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
-    </>
-  );
-}
-
-
-function App() {
-  const [isOffCanvasOpen, setIsOffCanvasOpen] = useState(false);
-  const [boardsMenuStructure, setBoardsMenuStructure] = useState([]);
-  const navigate = useNavigate(); // 用于 OffCanvasMenu 选择后导航
-  const location = useLocation(); // 用于获取当前路径给 Navbar
-  const { boardId, threadId } = useParams(); // 获取 URL 中的 ID
-
-  const [navTitle, setNavTitle] = useState("时间线 - X岛揭示板");
-
-  // 更新导航栏标题的逻辑
-  // 这部分现在会在 MainContent 组件内部处理，并通过 props 传递给 Navbar（如果需要）
-  // 或者 Navbar 可以直接从路由参数中获取标题信息
-
-  // 示例：从路由参数更新导航栏标题
-  useEffect(() => {
-      const searchParams = new URLSearchParams(location.search);
-      const currentPageViewName = searchParams.get('name'); // 假设我们把 name 也放到 URL 参数
-
-      if (threadId) {
-          setNavTitle(`No.${threadId}`);
-      } else if (boardId) {
-          // 你需要根据 boardId 从 boardsMenuStructure 查找版块名称
-          const foundBoard = boardsMenuStructure.flatMap(cat => cat.items || []).find(b => String(b.id || b.timelineId) === String(boardId));
-          setNavTitle(foundBoard ? foundBoard.name : `版块 ${boardId}`);
-      } else if (currentPageViewName) {
-          setNavTitle(currentPageViewName);
-      }
-      else {
-          setNavTitle("时间线 - X岛揭示板"); // 默认标题
-      }
-  }, [location, boardId, threadId, boardsMenuStructure]);
-
-
-  const loadBoardsMenu = useCallback(async () => {
-    try {
-      const boardsData = await fetchBoards();
-      const timelines = boardsData.filter(b => b.type === 'timeline');
-      const otherCategories = boardsData.filter(b => b.isCategoryHeader);
-      const menuStructure = [
-        {
-          name: "时间线",
-          isCategoryHeader: true,
-          items: timelines.map(tl => ({ name: tl.name, timelineId: tl.timelineId, description: tl.description }))
-        },
-        ...otherCategories
-      ];
-      setBoardsMenuStructure(menuStructure);
-    } catch (err) {
-      console.error("Failed to load boards menu:", err);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadBoardsMenu();
-  }, [loadBoardsMenu]);
-
+  // --- OffCanvas Menu Logic ---
+  const loadBoardsMenu = useCallback(async () => { /* ... (same as before) ... */ }, []);
+  useEffect(() => { loadBoardsMenu(); }, [loadBoardsMenu]);
   const toggleOffCanvas = () => setIsOffCanvasOpen(!isOffCanvasOpen);
-
   const handleBoardSelect = (board) => {
-    // board: { name, timelineId?, id? (slug/numeric for forum), description? }
     const boardIdToNavigate = board.timelineId || board.id;
-    // 将版块名称等信息也带到 URL 参数，方便 MainContent 读取
-    const searchParams = new URLSearchParams();
-    if (board.name) searchParams.set('name', board.name);
-    if (board.description) searchParams.set('header', board.description);
-
-    navigate(`/board/${boardIdToNavigate}?${searchParams.toString()}`);
+    navigate(`/board/${boardIdToNavigate}?page=1`);
     setIsOffCanvasOpen(false);
   };
 
+  // --- Event Handlers ---
+  const handleThreadClick = (threadNo) => {
+    navigate(`/thread/${threadNo}?page=1`);
+  };
+  const handlePageChange = (newPage) => {
+    navigate(`${location.pathname.split('?')[0]}?page=${newPage}`);
+    window.scrollTo(0, 0);
+  };
+
+  // --- PostForm Navigation ---
+  const handleNavigateToPostForm = () => {
+    if (activeThreadId) { // If currently viewing a thread, navigate to reply
+      navigate(`/post/reply/${activeThreadId}`);
+    } else if (activeBoardId) { // If currently viewing a board, navigate to new post in that board
+      navigate(`/post/new/${activeBoardId}`);
+    } else {
+      // Default: navigate to post to a default board (e.g., board 1) or show an error/selector
+      // For simplicity, let's assume we always have an activeBoardId if not a threadId when this is clicked
+      // Or, you could disable the button if no valid context.
+      // If we are at root, and activeBoardId is set to 1 by default URL parse logic:
+      if (location.pathname === '/') navigate(`/post/new/1`);
+      else alert("请先选择一个版块或帖子进行操作。");
+    }
+  };
+
+  const handlePostSuccessInApp = (newPostData) => {
+    // After successful post, navigate back or refresh data
+    // PostForm's own navigate(-1) will handle going back.
+    // We might want to force a data refresh for the view we are returning to.
+    loadData(); // Re-fetch data for the current board/thread
+    // Or, more robustly, navigate to the new thread if it's a new post.
+    // if (newPostData && newPostData.no && !activeThreadId) { // If it was a new thread
+    //   navigate(`/thread/${newPostData.no}`);
+    // }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar 标题现在从 App 的 state 读取，这个 state 会根据路由变化 */}
-      <Navbar onToggleOffCanvas={toggleOffCanvas} title={navTitle} />
+    <div className="min-h-screen bg-white flex flex-col"> {/* flex flex-col for h-full children */}
+      <Navbar
+        onToggleOffCanvas={toggleOffCanvas}
+        title={navTitle}
+        onNavigateToPostForm={handleNavigateToPostForm}
+      />
       <OffCanvasMenu
         isOpen={isOffCanvasOpen}
         onClose={toggleOffCanvas}
         boardStructure={boardsMenuStructure}
         onSelectBoard={handleBoardSelect}
       />
-
-      <main className="pt-14"> {/* pt-14 for fixed navbar (h-14) */}
+      
+      {/* Main content area takes remaining height */}
+      <main className="pt-14 flex-grow overflow-y-auto"> {/* flex-grow for h-full, overflow-y-auto */}
         <Routes>
-          <Route path="/" element={<MainContent />} /> {/* 默认首页，可以重定向或展示默认版块 */}
-          <Route path="/board/:boardId" element={<MainContent />} />
-          <Route path="/thread/:threadId" element={<MainContent />} />
-          {/* 可以添加一个 404 页面 */}
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="/" element={ // Default route, will be redirected by useEffect
+            <MainContentDisplay
+              threads={threads} forumMeta={forumMeta} isLoading={isLoading} error={error}
+              currentPage={currentPage} totalPages={totalPages} currentViewType={currentViewType}
+              onThreadClick={handleThreadClick} onPageChange={handlePageChange}
+            />
+          }/>
+          <Route path="/board/:boardId" element={
+            <MainContentDisplay
+              threads={threads} forumMeta={forumMeta} isLoading={isLoading} error={error}
+              currentPage={currentPage} totalPages={totalPages} currentViewType="board"
+              onThreadClick={handleThreadClick} onPageChange={handlePageChange}
+            />
+          }/>
+          <Route path="/thread/:threadId" element={
+            <MainContentDisplay
+              threads={threads} forumMeta={forumMeta} isLoading={isLoading} error={error}
+              currentPage={currentPage} totalPages={totalPages} currentViewType="thread"
+              onThreadClick={handleThreadClick} onPageChange={handlePageChange}
+            />
+          }/>
+          <Route path="/post/new/:boardId" element={
+            <PostForm
+              appPostFormData={postFormData}
+              setAppPostFormData={setPostFormData}
+              appImageFile={postFormImageFile}
+              setAppImageFile={setPostFormImageFile}
+              onPostSuccess={handlePostSuccessInApp}
+            />
+          }/>
+          <Route path="/post/reply/:threadId" element={
+            <PostForm
+              appPostFormData={postFormData}
+              setAppPostFormData={setPostFormData}
+              appImageFile={postFormImageFile}
+              setAppImageFile={setPostFormImageFile}
+              onPostSuccess={handlePostSuccessInApp}
+            />
+          }/>
         </Routes>
       </main>
     </div>

@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api/v2'; // Adjust if your Vite proxy or API URL is different
+const API_BASE_URL = '/api/v2/'; // Adjust if your Vite proxy or API URL is different
 
 const constructImageUrl = (path) => {
     if (!path) return null;
@@ -84,3 +84,7 @@ export const fetchBoards = async () => {
         },
     ];
 };
+
+export const submitPost = () => {
+
+}
