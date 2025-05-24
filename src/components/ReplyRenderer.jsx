@@ -1,6 +1,6 @@
 // ReplyRenderer.jsx
 import React from 'react';
-import QuoteLink from './QuoteLink'; // Adjust path if necessary
+import QuoteLink from './QuoteLink.tsx'; // Adjust path if necessary
 
 const ReplyRenderer = ({ text }) => {
   if (typeof text !== 'string' || !text.trim()) {

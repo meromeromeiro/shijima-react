@@ -2,6 +2,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Thread } from '../services/type';
 import ReplyRenderer from './ReplyRenderer';
+import ThreadImage from './ThreadImage.tsx'
 
 function ReplyItem({ reply, opNo }: { reply: Thread, opNo: number }) {
   if (!reply) return null;
@@ -57,14 +58,7 @@ function ReplyItem({ reply, opNo }: { reply: Thread, opNo: number }) {
       {/* Row 3: Image and Content (if replies can have images) */}
       {reply.p && (
         <div className="mb-1.5">
-          <a href={reply.p} target="_blank" rel="noopener noreferrer" className="inline-block">
-            <img
-              src={reply.p}
-              alt={""}
-              className="max-w-[64px] max-h-[64px] object-cover border border-gray-200 rounded-sm" // w-16 h-16 approx
-              loading="lazy"
-            />
-          </a>
+          <ThreadImage imageUrl={reply.p} />
         </div>
       )}
 

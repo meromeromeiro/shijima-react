@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+</head>
+<body>
+<input type="text" id="input">
+<button onclick="del()">删除！</button>
+<p>能按Enter了</p>
+<pre id="return">...</pre>
+<script>
+        const el = document.getElementById("input");
+        el.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                del()
+            }
+        });
+        function del() {
+            const log = document.getElementById("return");
+            const el = document.getElementById("input");
+            console.log(el.value);
+            const tid = parseInt(el.value, 10);
+            console.log(tid);
+
+
+
+            if (isNaN(tid)) {
+                console.log('isNan');
+                log.innerHTML = log.innerHTML + "\nError: postID is" + tid;
+                return;
+            }
+
+            log.innerHTML = log.innerHTML + "\n删除的postID是" + tid;
+
+            fetch('/api/', {
+                method: "POST",
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: JSON.stringify(getPostBody(tid)),
+            })
+            .then(r => r.text())
+            .then((r) => {
+                log.innerHTML = log.innerHTML + "\n\nreturn: " + r;
+            });
+            console.log(JSON.stringify(getPostBody(tid)));
+
+            fetch('/api/v2/?no='+String(tid), {
+                method: "DELETE",
+                mode: 'cors',
+            })
+
+            log.innerHTML = log.innerHTML + "\npayload: " + JSON.stringify(getPostBody(tid));
+
+        }
+        function getPostBody(tid) {
+            return {
+                m : 'del',
+                id: localStorage.getItem('id'),
+                auth: localStorage.getItem('auth'),
+                tid : tid,
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import PostForm from "./components/PostForm"
 import { uploadFile } from './services/upload';
@@ -13,6 +13,17 @@ export default function Form({ isVisible, onClose, onPostSuccess, title }) {
         const url = await uploadFile(file);
         setImageFile(url);
     }
+
+    useEffect(() => {
+        if (searchParams.has("r")) {
+            setFormData(prev => {
+                return {
+                    ...prev,
+                    content : prev.content += (">No." + searchParams.get("r") +"\n"),
+                }
+            })
+        }
+    }, [searchParams])
 
     return <PostForm
         isVisible={isVisible}

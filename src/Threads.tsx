@@ -6,6 +6,7 @@ import { getThread, getThreads } from './services/api'; // Your API functions
 import type { Thread } from "./services/type"
 import Pagination from './components/Pagination.tsx';
 import { set } from 'date-fns';
+import { setDocumentTitle } from './services/utils.ts';
 
 const ITEMS_PER_PAGE_THREAD = 30; // Standard items per page for threads/replies
 const ITEMS_PER_PAGE_BOARD = 15; // Standard items per page for threads/replies
@@ -35,14 +36,15 @@ function Threads({ refresh }) {
         const page = searchParams.get('pn') || "0";
         if (tid === "0")
             getThreads(bid, tid, page).then(threads => {
-                console.log(threads);
+                // console.log(threads);
                 setData(threads);
                 setIsLoading(false)
             })
         else
             getThread(tid, page).then(threads => {
-                console.log(threads);
+                // console.log(threads);
                 setData(threads);
+                setDocumentTitle(`No.${threads[0].no} - ${threads[0].t ? threads[0].t : threads[0].txt}`)
                 setIsLoading(false)
             })
     }, [searchParams, refresh]);

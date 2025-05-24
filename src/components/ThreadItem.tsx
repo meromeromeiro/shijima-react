@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import type { Thread } from '../services/type';
 import ReplyItem from './ReplyItem.tsx';
 import ReplyRenderer from './ReplyRenderer.jsx';
+import ThreadImage from './ThreadImage.tsx'
 
 function ThreadItem({ thread }: { thread: Thread }) {
   if (!thread) return null;
@@ -58,16 +59,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
 
       {/* Row 3: Image and Content */}
       <div className="flex gap-3"> {/* Using gap for spacing between image and text */}
-        {thread.image && (
-          <a href={thread.image} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
-            <img
-              src={thread.image}
-              alt={""} // Decorative if content explains it
-              className="w-20 h-20 object-cover border border-gray-200 rounded-sm"
-              loading="lazy"
-            />
-          </a>
-        )}
+        <ThreadImage imageUrl={thread.p}/>
         <div
           className="text-sm text-gray-800 break-words parsed-html-content flex-grow min-w-0" // min-w-0 for flex child truncation
         // dangerouslySetInnerHTML={{ __html: thread.content }}
