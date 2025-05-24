@@ -12,6 +12,7 @@ const CloseIcon = () => (
 function PostForm({
   isVisible,
   onClose, // 这个 onClose 现在由 PostForm 内部的 X 按钮调用
+  currentBoardTitle,
   currentBoardId,
   currentThreadId,
   onPostSuccess,
@@ -27,9 +28,10 @@ function PostForm({
   const [searchParam] = useSearchParams();
 
   // 使用从 props 传入的 currentBoardId 和 currentThreadId
-  const formPageTitle = currentThreadId
-    ? `回复 No.${currentThreadId}`
-    : (currentBoardId ? `在版块 ${currentBoardId} 发布新串` : "发布新内容");
+  const formPageTitle = currentThreadId? `回复 No.${currentThreadId}`
+                      : currentBoardTitle ? `在版块 ${currentBoardTitle} 发布新串` 
+                      : currentBoardId ? `在版块 ${currentBoardId} 发布新串` 
+                      : "发布新内容";
 
   // Clear messages when visibility changes or target changes
   useEffect(() => {

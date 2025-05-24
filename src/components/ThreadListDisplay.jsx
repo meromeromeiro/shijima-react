@@ -1,17 +1,15 @@
-import React from 'react';
-import ThreadItem from './ThreadItem';
-import Pagination from './Pagination'; // Assuming you'll create this
+import React, { } from 'react';
+import ThreadItem from './ThreadItem.tsx';
+import Pagination from './Pagination'; // Assuming you have this component
+
+const ITEMS_PER_PAGE = 30; // Or get this from a config
 
 function ThreadListDisplay({
-    threads, // Can be list of threads or a single thread object with a 'list' of replies
-    bid,
-    tid, // Current thread ID (0 if board view)
+    threads,    // This will be the raw data from API:
+    // - For board view: an array of thread objects for the current page.
+    // - For thread view: a single thread object, where thread.list contains replies for the current page.
     isLoading,
     error,
-    currentPage, // tPage for thread view, bPage for board view
-    lengthOfLastPage, // For board view's "Next Page"
-    onNextBoardPage,
-    onNavigateToThread, // Function to handle navigation to a thread view or specific page
 }) {
 
     if (isLoading) {
@@ -22,9 +20,11 @@ function ThreadListDisplay({
         return <div className="text-center p-10 text-red-500">加载失败: {error}</div>;
     }
 
-    if (!bid && !tid) { // No board or thread selected (initial state)
+    // Welcome message if no bid/tid (effectively, if threads data is null/undefined and not loading/error)
+    // And also no specific bid/tid from URL (though parent usually handles this by not rendering or passing empty threads)
+    if (!isLoading && !error && !threads) {
         return (
-            <div className="text-center p-10 mt-10 text-shijima-text">
+            <div className="text-center p-10 mt-10"> {/* Removed custom text color class */}
                 <div className="mx-auto">
                     <br /><br />
                     <p className="text-lg">月島 しじま<br />月岛 静寂</p>
@@ -38,61 +38,9 @@ function ThreadListDisplay({
         );
     }
 
-    // If tid is present, we are in thread view. 'threads' should be a single thread object.
-    const isThreadView = !!tid;
-    const displayItems = isThreadView ? (threads && threads.list ? threads.list : []) : threads;
-    const mainThreadItem = isThreadView ? threads : null;
-
-
     return (
         <div id="thread-panel" className="px-2 md:px-4">
-            {isThreadView && mainThreadItem && (
-                 <>
-                    <ThreadItem
-                        item={mainThreadItem}
-                        bid={bid}
-                        isReply={false}
-                        onNavigateToThread={onNavigateToThread}
-                    />
-                    {/* Replies are rendered inside ThreadItem if they exist on mainThreadItem.list for initial load */}
-                    {/* Or if they are loaded separately and passed as `displayItems` */}
-                </>
-            )}
-
-            {!isThreadView && displayItems && displayItems.map(thread => (
-                <ThreadItem
-                    key={thread.no}
-                    item={thread}
-                    bid={bid}
-                    isReply={false}
-                    onNavigateToThread={onNavigateToThread}
-                />
-            ))}
-
-            {/* Pagination or "Next Page" button */}
-            {isThreadView && mainThreadItem ? (
-                <Pagination
-                    currentPage={currentPage} // This should be tPage
-                    totalItems={mainThreadItem.num || 0} // Total replies for this thread
-                    itemsPerPage={30} // As per your original pagination logic
-                    onPageChange={(newPage) => onNavigateToThread(mainThreadItem, newPage)}
-                    bid={bid}
-                    tid={tid}
-                />
-            ) : ( // Board view 
-                bid && !tid && (
-                    lengthOfLastPage > 0 ? (
-                        <button
-                            onClick={onNextBoardPage}
-                            className="w-full h-16 bg-shijima-accent text-white rounded hover:bg-opacity-80 my-4"
-                        >
-                            下一页
-                        </button>
-                    ) : lengthOfLastPage === 0 ? (
-                        <div className="text-center py-4 text-gray-500">已经到底了</div>
-                    ) : null // No button if initial load or error
-                )
-            )}
+            {threads.map(thread => <ThreadItem thread={thread} />)}
         </div>
     );
 }

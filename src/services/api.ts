@@ -1,26 +1,6 @@
+import { Board, Thread } from './type';
 // Represents a single thread or a reply within a thread
-interface Thread {
-    t?: string;         // title (无标题), optional as per json:",omitempty"
-    n?: string;         // name (无名氏), optional as per json:",omitempty"
-    ts?: string;         // timestamp (e.g., "2022-10-16(日)23:14:27")
-    id: string;         // user identity (e.g., "Admin", "F7nfJr2")
-    no: number;         // number (post number, e.g., 52752005) - uint in Go, number in TS
-    p?: string;         // picture src (e.g., "2025-01-15/678787a6e4cb4.jpg"), optional
-    txt: string;        // content (HTML string)
-    r?: number;         // reply to (parent thread's 'no'), hidden from JSON, but useful for client logic if fetched
-    // del?: number;    // is deleted? (int8 in Go), hidden from JSON, usually not needed on client if API filters deleted
-    // c?: string;      // country, hidden from JSON
-    // ip?: string;     // ip address, hidden from JSON
-    num?: number;       // reply_num from board (for main threads), or other numeric count, optional
-    list?: Thread[];    // replies (array of Thread objects), optional
 
-    // Client-side enhancements (optional, can be added during data parsing)
-    isSage?: boolean;   // Derived from 'txt' content or a specific API field if available
-    isPo?: boolean;     // Derived by comparing 'id' with the main thread's 'id'
-    image?: string | null; // Full URL for the main image (derived from 'p')
-    thumbnail?: string | null; // Full URL for the thumbnail (derived from 'p')
-    replyCount?: number; // Often 'num' is used for this for main threads from board view
-}
 
 // Example usage:
 // const exampleThread: Thread = {
@@ -42,6 +22,12 @@ interface Thread {
 //     }
 //   ]
 // };
+
+// interface Board {
+//     id: number,
+//     name: string,
+//     intro?: string,
+// }
 
 const API_BASE_URL = '/api/v2/'; // Adjust if your Vite proxy or API URL is different
 const NULL_IMAGE_URL = 'https://moonchan.xyz/favicon.ico'
@@ -73,8 +59,27 @@ const parseItemData = (item) => ({
     replyCount: item.num || 0, // num seems to be reply_num for main threads from board
     isSage: item.txt && item.txt.toLowerCase().includes('sage'), // Simple check, might need refinement
     isPo: item.isPo || false, // You might need to determine this based on context or API
-});
+} as Thread);
 
+
+export const getThread = async(tid = "0", page = "99999") => {
+    const response =  await fetch(`${API_BASE_URL}?tid=${tid}&pn=${page}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return [data].map(parseItemData)
+}
+
+export const getThreads = async (bid = "1", tid = "0", page = "0") => {
+    // API uses 0-indexed pages for pn, UI usually uses 1-indexed.
+    const response = await fetch(`${API_BASE_URL}?bid=${bid}&tid=${tid}&pn=${page}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return (data as any[] || []).map(parseItemData);
+}
 
 // page is 1 based
 export const fetchBoardThreads = async (boardId = 1, page = 1) => {

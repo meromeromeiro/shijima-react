@@ -4,7 +4,7 @@ import PostForm from "./components/PostForm"
 import { uploadFile } from './services/upload';
 
 
-export default function Form({ isVisible, onClose, onPostSuccess }) {
+export default function Form({ isVisible, onClose, onPostSuccess, title }) {
     const [searchParams] = useSearchParams();
     const [formData, setFormData] = useState({ name: "", email: "", title: "", content: "" });
     const [imageFile, setImageFile] = useState("");
@@ -17,6 +17,7 @@ export default function Form({ isVisible, onClose, onPostSuccess }) {
     return <PostForm
         isVisible={isVisible}
         onClose={onClose}
+        currentBoardTitle={title}
         currentBoardId={searchParams.get("bid")}
         currentThreadId={searchParams.get("tid")}
         onPostSuccess={onPostSuccess}
