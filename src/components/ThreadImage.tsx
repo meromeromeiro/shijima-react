@@ -32,7 +32,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
     ]
 
     const defaultLinkClasses = "flex-shrink-0";
-    const defaultImageClasses = "w-auto max-h-40 object-cover border border-gray-200 rounded-sm";
+    const defaultImageClasses = "max-w-64 max-h-40 object-cover border border-gray-200 rounded-sm";
 
     return (
         <a

@@ -25,7 +25,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
   }
 
   return (
-    <article className="px-3 py-3 sm:px-4"> {/* More padding on sm+ */}
+    <article className="px-3 py-3 sm:px-4 border-t border-gray-200"> {/* More padding on sm+ */}
       <div className="mb-1 flex flex-wrap items-baseline text-sm">
         <span className="font-semibold text-red-700 mr-2">{thread.t || "无标题"}</span>
         <span className="text-blue-500 mr-2">{thread.n || "无名氏"}</span>
@@ -58,14 +58,15 @@ function ThreadItem({ thread }: { thread: Thread }) {
       </div>
 
       {/* Row 3: Image and Content */}
-      <div className="flex gap-3"> {/* Using gap for spacing between image and text */}
-        <ThreadImage imageUrl={thread.p}/>
-        <div
-          className="text-sm text-gray-800 break-words parsed-html-content flex-grow min-w-0" // min-w-0 for flex child truncation
-        // dangerouslySetInnerHTML={{ __html: thread.content }}
-        >
-          <ReplyRenderer text={thread.txt} />
-        </div>
+      <div className="mb-1.5 gap-3"> {/* Using gap for spacing between image and text */}
+        <ThreadImage imageUrl={thread.p} />
+      </div>
+
+      <div
+        className="text-sm text-gray-800 break-words parsed-html-content flex-grow min-w-0" // min-w-0 for flex child truncation
+      // dangerouslySetInnerHTML={{ __html: thread.content }}
+      >
+        <ReplyRenderer text={thread.txt} />
       </div>
 
       {/* Omitted replies message */}
