@@ -30,12 +30,12 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black z-[55] transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-black z-[55] transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-50' : ' opacity-0 pointer-events-none'}`}
         onClick={onClose}
       ></div>
       {/* Menu */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-50 shadow-xl z-[60] overflow-y-auto transition-transform duration-300 ease-in-out transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-50 shadow-xl z-[60] overflow-y-auto transition-transform duration-300 ease-in-out transform ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Section for Board Selection */}
         <div className="px-4 pt-4 pb-2 text-sm font-semibold text-gray-700">

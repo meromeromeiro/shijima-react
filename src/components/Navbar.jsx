@@ -15,10 +15,10 @@ const PlusIcon = () => ( // 发帖/回复图标
 function Navbar({ onToggleOffCanvas, title, onTogglePostForm }) { // 添加 onTogglePostForm
   return (
     <nav 
-      className="h-14 fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-2 bg-gray-100 border-b border-gray-200"
+      className="h-14 fixed top-0 left-0 lg:left-64 right-0 z-50 flex items-center justify-between px-2 bg-gray-100 border-b border-gray-200"
     >
       {/* Left section for hamburger */}
-      <div>
+      <div className="lg:invisible">
         <button 
           onClick={onToggleOffCanvas} 
           className="p-2 text-gray-600 rounded-md hover:bg-gray-200 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"

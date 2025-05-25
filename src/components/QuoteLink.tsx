@@ -3,21 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { getThread } from '../services/api';
 import ReplyItem from './ReplyItem';
 import { Thread } from '../services/type';
-
-const QuotedPostPreview = ({ postId }) => {
-  const [reply, setReply] = useState<Thread|null>(null);
-
-  useEffect(() => {
-    setReply(null);
-    getThread(String(postId)).then(threads => {
-      const reply = threads[0];
-      setReply(reply);
-    });
-  }, [postId])
-
-  return reply && <ReplyItem reply={reply} opNo={0} />
-}
-
+import QuotedPostPreview from './QuotedPostPreview';
 
 interface QuoteLinkProps {
   text: string;

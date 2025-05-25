@@ -12,6 +12,20 @@ interface ThreadImageProps {
     imageClassName?: string;
 }
 
+
+const previewUrl = (urlString: string) => {
+    const originalUrl = new URL(urlString);
+    let originalHost = originalUrl.host;
+    if (originalHost === "proxy.moonchan.xyz") {
+        originalUrl.searchParams.set('host', originalUrl.searchParams.get("proxy_host") || "");
+    } else {
+        originalUrl.searchParams.set('host', originalHost);
+    }
+    originalUrl.pathname = "/api/v2/preview" + originalUrl.pathname
+    originalUrl.host = "moonchan.xyz"
+    return originalUrl.href
+}
+
 const ThreadImage: React.FC<ThreadImageProps> = ({
     imageUrl,
     altText = "", // Defaults to empty string as in the original example
@@ -26,12 +40,13 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
     const [index, setIndex] = useState(0);
 
     const tryList = [
+        previewUrl(imageUrl),
         validEhentaiUrl(imageUrl),
         proxyWithHostParam(imageUrl),
         "https://moonchan.xyz/favicon.ico",
     ]
 
-    const defaultLinkClasses = "flex-shrink-0";
+    const defaultLinkClasses = "flex w-fit";
     const defaultImageClasses = "max-w-64 max-h-40 object-cover border border-gray-200 rounded-sm";
 
     return (

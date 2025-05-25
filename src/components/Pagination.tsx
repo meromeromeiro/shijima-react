@@ -91,7 +91,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages }) => {
         <div className="px-4 py-4">
             <ul className="flex justify-center items-center space-x-1 sm:space-x-2">
                 {/* Previous Page Button */}
-                <li>
+                {/* <li>
                     <button
                         onClick={() => handlePageClick(currentPage - 1)}
                         disabled={currentPage === 0}
@@ -100,7 +100,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages }) => {
                     >
                         上一页
                     </button>
-                </li>
+                </li> */}
 
                 {/* First Page Button & Ellipsis (if needed at the start) */}
                 {startPage > 0 && (
@@ -140,7 +140,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages }) => {
                 )}
 
                 {/* Next Page Button */}
-                <li>
+                {/* <li>
                     <button
                         onClick={() => handlePageClick(currentPage + 1)}
                         disabled={currentPage === totalPages - 1}
@@ -149,10 +149,10 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages }) => {
                     >
                         下一页
                     </button>
-                </li>
+                </li> */}
 
                 {/* "Last Page" (末页) Button - shown if many pages and not near the end */}
-                {totalPages > MAX_VISIBLE_PAGES && currentPage < totalPages - 1 && (
+                {/* {totalPages > MAX_VISIBLE_PAGES && currentPage < totalPages - 1 && (
                     <li>
                         <button
                             onClick={() => handlePageClick(totalPages - 1)}
@@ -162,7 +162,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages }) => {
                             末页
                         </button>
                     </li>
-                )}
+                )} */}
             </ul>
         </div>
     );

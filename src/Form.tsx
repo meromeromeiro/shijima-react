@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom';
-import PostForm from "./components/PostForm"
+import PostForm from "./components/PostForm.tsx"
 import { uploadFile } from './services/upload';
 
 
