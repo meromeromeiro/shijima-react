@@ -67,14 +67,14 @@ const ReplyRenderer = ({ text }) => {
             const linkText = linkMatch[1];
             const linkUrl = linkMatch[2];
             return (
-                <a
-                  href={linkUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
-                >
-                  {linkText}
-                </a>
+              <a
+                href={linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
+              >
+                {linkText}
+              </a>
             );
           }
           // If it starts with "## " but isn't a valid markdown link,
@@ -103,11 +103,11 @@ const ReplyRenderer = ({ text }) => {
         // If the line was empty after stripping '>' (e.g. just ">"), parsedSegments might be empty.
         // Ensure we render something to maintain line structure if greentextPrefixElement exists.
         if (greentextPrefixElement && parsedSegments.length === 1 && parsedSegments[0] === '') {
-            return (
-                <div key={index} className="text-green-600 greentext-line">
-                    {greentextPrefixElement}
-                </div>
-            );
+          return (
+            <div key={index} className="text-green-600 greentext-line" style={{ color: '#00aa00' }}>
+              {greentextPrefixElement}
+            </div>
+          );
         }
 
 
@@ -115,6 +115,7 @@ const ReplyRenderer = ({ text }) => {
           <div
             key={index}
             className={`${isGreenText ? 'text-green-600 greentext-line' : ''}`}
+            style={isGreenText ? { color: '#00aa00' } : {}}
           >
             {isGreenText && greentextPrefixElement}
             {parsedSegments.map((segment, i) => (

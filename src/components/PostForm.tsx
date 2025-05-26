@@ -206,7 +206,8 @@ function PostForm({
     if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-0 top-0 left-0 w-full h-full bg-white z-[70] flex flex-col p-0">
+        <div className="fixed inset-0 w-full h-full bg-white z-[70] flex flex-col p-0 lg:inset-auto lg:top-0 lg:right-0 lg:w-128 lg:h-128 shadow-xl">
+        {/* <div className="fixed inset-0 top-0 left-0 w-full h-full bg-white z-[70] flex flex-col p-0 lg:w-128 lg:h-128 lg:right-0"> */}
             {/* Header */}
             <div className="h-14 flex-shrink-0 bg-gray-100 border-b border-gray-200 flex items-center justify-between px-3">
                 <h2 className="text-base font-medium text-gray-700 truncate">

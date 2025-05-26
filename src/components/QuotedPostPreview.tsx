@@ -16,5 +16,5 @@ export default function QuotedPostPreview({ postId }) {
         });
     }, [postId])
 
-    return reply && <ReplyItem reply={reply} opNo={reply.r || 0} />
+    return reply && <ReplyItem reply={reply} opNo={reply.r || reply.no} />
 }

@@ -5,7 +5,6 @@ import ThreadListDisplay from './components/ThreadListDisplay'; // Your provided
 import { getThread, getThreads } from './services/api'; // Your API functions
 import type { Thread } from "./services/type"
 import Pagination from './components/Pagination.tsx';
-import { set } from 'date-fns';
 import { setDocumentTitle } from './services/utils.ts';
 
 const ITEMS_PER_PAGE_THREAD = 30; // Standard items per page for threads/replies

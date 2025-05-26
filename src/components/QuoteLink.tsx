@@ -81,6 +81,7 @@ const QuoteLink: React.FC<QuoteLinkProps> = ({ text, number, type }) => {
         ref={linkRef}
         href={href}
         className="text-blue-600 hover:text-blue-800 hover:underline font-medium quote-link"
+        style={{ color: '#0000aa' }}
         data-post-no={number}
         onClick={handleClick}
       >
@@ -100,7 +101,7 @@ const QuoteLink: React.FC<QuoteLinkProps> = ({ text, number, type }) => {
             // transform: isHovering ? 'translateY(0)' : 'translateY(5px)',
             // minWidth: '150px', // Ensure it has some base width
           }}
-          className="quote-link-preview-box shadow-lg bg-white rounded-md p-2 border border-gray-300 min-w-64 md:min-w-64" // Tailwind for basic styling
+          className="quote-link-preview-box shadow-lg bg-white rounded-md p-2 border border-gray-300 min-w-64 xl:min-w-192" // Tailwind for basic styling
         >
           {/* Replace with your actual component when ready */}
           {/* <PreviewComponentPlaceholder /> */}
