@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getBoardStructure } from './services/api.ts'
 import type { Board } from './services/type';
 
@@ -12,13 +12,6 @@ export default function Menu({ isOpen, onClose, onSelectBoard }) {
     useEffect(() => {
         getBoardStructure().then(r => setBoardStructure(r))
     }, [])
-
-    // move to App
-    // const onSelectBoard = (item: Board) => {
-    //     console.log(item);
-    //     setSearchParams({ bid: String(item.id) })
-    //     onClose();
-    // }
 
     return <OffCanvasMenu isOpen={isOpen} onClose={onClose} boardStructure={boardStructure} onSelectBoard={(item) => { onSelectBoard(item); onClose(); }} />
 

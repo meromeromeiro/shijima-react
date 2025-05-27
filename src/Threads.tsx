@@ -1,6 +1,6 @@
 // src/components/ContentArea.jsx (or integrate into App.jsx)
-import React, { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ThreadListDisplay from './components/ThreadListDisplay'; // Your provided component
 import { getThread, getThreads } from './services/api'; // Your API functions
 import type { Thread } from "./services/type"
@@ -8,7 +8,6 @@ import Pagination from './components/Pagination.tsx';
 import { setDocumentTitle } from './services/utils.ts';
 
 const ITEMS_PER_PAGE_THREAD = 30; // Standard items per page for threads/replies
-const ITEMS_PER_PAGE_BOARD = 15; // Standard items per page for threads/replies
 
 function Threads({ refresh }) {
     // const navigate = useNavigate();
@@ -72,7 +71,7 @@ function Threads({ refresh }) {
                 isLoading={isLoading}
                 error={error}
             />
-            { !(!isLoading && !error && data.length === 0) &&<Pagination totalPages={totalPages} />}
+            {!(!isLoading && !error && data.length === 0) && <Pagination totalPages={totalPages} />}
         </main>
     );
 }

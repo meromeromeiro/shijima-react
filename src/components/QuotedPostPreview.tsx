@@ -1,6 +1,6 @@
 // QuotedPostPreview.tsx
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ReplyItem from './ReplyItem';
 import { getThread } from '../services/api';
 import type { Thread } from '../services/type';

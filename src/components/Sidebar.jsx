@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { APIURL } from '../utils';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const initialBoards = [
     { id: 1, name: "闲聊", intro: "请期待破岛的完全体，不过真的有人期待么……" },

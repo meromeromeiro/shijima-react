@@ -56,7 +56,7 @@ const ReplyRenderer = ({ text }) => {
     <div className="parsed-reply-content whitespace-pre-wrap break-words text-sm text-gray-700">
       {lines.map((line, index) => {
 
-        if (line.trim() === "") return <br />
+        if (line.trim() === "") return <br key={index} />
 
         // Rule 1: Markdown H2-style Link (## [Text](URL))
         if (line.startsWith('## ')) {
@@ -68,6 +68,7 @@ const ReplyRenderer = ({ text }) => {
             const linkUrl = linkMatch[2];
             return (
               <a
+                key={index}
                 href={linkUrl}
                 target="_blank"
                 rel="noopener noreferrer"

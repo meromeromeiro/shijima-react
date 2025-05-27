@@ -28,37 +28,41 @@ export function validEhentaiUrl(urlString: string): string {
  * @returns 修改后的完整URL字符串
  */
 export function proxyWithHostParam(urlString: string): string {
-    // 解析原始URL对象
-    const originalUrl = new URL(urlString);
+    try {
+        // 解析原始URL对象
+        const originalUrl = new URL(urlString);
 
-    // 保存原始host（包含端口号）
-    let originalHost = originalUrl.host;
+        // 保存原始host（包含端口号）
+        let originalHost = originalUrl.host;
 
-    if (originalHost === "proxy.moonchan.xyz") return urlString;
-    if (originalHost === "pbs.twimg.com") {
-        originalUrl.host = "twimg.moonchan.xyz"
-        return originalUrl.href
+        if (originalHost === "proxy.moonchan.xyz") return urlString;
+        if (originalHost === "pbs.twimg.com") {
+            originalUrl.host = "twimg.moonchan.xyz"
+            return originalUrl.href
+        }
+        if (originalHost === "i.pximg.net") {
+            originalUrl.host = "pximg.moonchan.xyz"
+            return originalUrl.href
+        }
+
+        if (["toto.im"].includes(parseRootDomain(originalHost))) {
+            originalHost = "wx" + String(getRandomIntInclusive(1, 4)) + ".sinaimg.cn"
+        }
+
+        // 替换host为代理域名[1](@ref)
+        originalUrl.host = 'proxy.moonchan.xyz';
+
+        // 在查询参数中添加原始host[7](@ref)
+        originalUrl.searchParams.set('proxy_host', originalHost);
+
+        if (["sinaimg.cn"].includes(parseRootDomain(originalHost))) {
+            originalUrl.searchParams.set('proxy_referer', "https://weibo.com");
+        }
+
+        return originalUrl.href;
+    } catch (e) {
+        return urlString;
     }
-    if (originalHost === "i.pximg.net") {
-        originalUrl.host = "pximg.moonchan.xyz"
-        return originalUrl.href
-    }
-
-    if (["toto.im"].includes(parseRootDomain(originalHost))) {
-        originalHost = "wx" + String(getRandomIntInclusive(1, 4)) + ".sinaimg.cn"
-    }
-
-    // 替换host为代理域名[1](@ref)
-    originalUrl.host = 'proxy.moonchan.xyz';
-
-    // 在查询参数中添加原始host[7](@ref)
-    originalUrl.searchParams.set('proxy_host', originalHost);
-
-    if (["sinaimg.cn"].includes(parseRootDomain(originalHost))) {
-        originalUrl.searchParams.set('proxy_referer', "https://weibo.com");
-    }
-
-    return originalUrl.href;
 }
 
 /**
@@ -79,7 +83,7 @@ export function parseRootDomain(hostname: string): string {
 
 
 // [min, max]
-function getRandomIntInclusive(min: number, max: number): number {
+export function getRandomIntInclusive(min: number, max: number): number {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; // [3,6,7](@ref)
@@ -145,6 +149,12 @@ import { toZonedTime, format } from 'date-fns-tz'; // For timezone conversion an
  *                           例如 "Asia/Shanghai", "America/New_York", "Europe/London"。
  * @returns 格式化后的本地时间字符串，或者在出错时返回错误信息。
  */
+// export function formatUtcToLocalReadableTS(
+//     utcTimeString?: string,
+//     targetTimeZoneName?: string
+// ): string{
+//     return utcTimeString || targetTimeZoneName || "undefined"
+// }
 export function formatUtcToLocalReadableTS(
     utcTimeString?: string,
     targetTimeZoneName?: string
@@ -173,7 +183,7 @@ export function formatUtcToLocalReadableTS(
         // 使用 date-fns-tz 的 format 函数，并提供 timeZone 选项
         // 'yyyy-MM-dd' 获取日期部分
         const dateStr = format(zonedDate, 'yyyy-MM-dd', { timeZone: targetTimeZoneName });
-        
+
         // 'HH:mm:ss' 获取时间部分 (24小时制)
         const timeStr = format(zonedDate, 'HH:mm:ss', { timeZone: targetTimeZoneName });
 
@@ -188,9 +198,9 @@ export function formatUtcToLocalReadableTS(
 
     } catch (error) {
         if (error instanceof Error) {
-             // 捕获 date-fns-tz 可能抛出的 RangeError (例如，无效的时区名称)
+            // 捕获 date-fns-tz 可能抛出的 RangeError (例如，无效的时区名称)
             if (error.message.includes("Invalid time zone")) {
-                 return `错误：未知的或无效的目标时区 '${targetTimeZoneName}'。详情: ${error.message}`;
+                return `错误：未知的或无效的目标时区 '${targetTimeZoneName}'。详情: ${error.message}`;
             }
             return `错误：时间转换或格式化时出错。详情: ${error.message}`;
         }

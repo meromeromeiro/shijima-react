@@ -1,4 +1,3 @@
-import React from 'react';
 import { getCookie } from '../services/api'
 // You might want different icons for these functional links if desired
 // For example, an UploadIcon, CookieIcon, TrashIcon, ArrowUturnLeftIcon

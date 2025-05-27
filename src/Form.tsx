@@ -9,9 +9,14 @@ export default function Form({ isVisible, onClose, onPostSuccess, title }) {
     const [formData, setFormData] = useState({ name: "", email: "", title: "", content: "" });
     const [imageFile, setImageFile] = useState("");
 
-    const onUploadFile = async (file:File) => {
-        const url = await uploadFile(file);
-        setImageFile(url);
+    const onUploadFile = async (file: File) => {
+        console.log(file);
+        if (file) {
+            setImageFile("https://media.tenor.com/WX_LDjYUrMsAAAAm/loading.webp");
+            const url = await uploadFile(file);
+            console.log(url);
+            setImageFile(url);
+        }
     }
 
     useEffect(() => {
@@ -19,7 +24,7 @@ export default function Form({ isVisible, onClose, onPostSuccess, title }) {
             setFormData(prev => {
                 return {
                     ...prev,
-                    content : prev.content += (">No." + searchParams.get("r") +"\n"),
+                    content: prev.content += (">No." + searchParams.get("r") + "\n"),
                 }
             })
         }
@@ -31,10 +36,10 @@ export default function Form({ isVisible, onClose, onPostSuccess, title }) {
         currentBoardTitle={title}
         currentBoardId={searchParams.get("bid")}
         currentThreadId={searchParams.get("tid")}
-        onPostSuccess={onPostSuccess}
+        onPostSuccess={() => { setImageFile(""); onPostSuccess() }}
         formData={formData}
         setFormData={setFormData}
-        imageFile={imageFile}
+        imageFileURL={imageFile}
         setImageFile={onUploadFile}
     />
 }

@@ -32,13 +32,6 @@ function ThreadItem({ thread }: { thread: Thread }) {
         <div className="flex flex-wrap items-baseline text-sm mr-2"> {/* Optional: Added mr-2 for spacing */}
           <span className="font-semibold text-red-700 mr-2">{thread.t || "无标题"}</span>
           <span className="text-blue-500 mr-2">{thread.n || "无名氏"}</span>
-          <a
-            href={parseURLSearchParams(searchParams, thread.no)}
-            onClick={onClickThread}
-            className="text-xs text-gray-500 hover:underline hover:text-blue-500 mr-2"
-          >
-            No.{thread.no}
-          </a>
           {thread.isSage && (
             <span className="mr-2 px-2 py-0.5 text-xs font-semibold bg-yellow-400 text-yellow-800 rounded-sm">
               SAGE
@@ -46,6 +39,13 @@ function ThreadItem({ thread }: { thread: Thread }) {
           )}
           <span className="text-xs text-gray-500 mr-2">{formatUtcToLocalReadableTS(thread.ts, "Asia/Shanghai")}</span>
           <span className="text-xs text-gray-500">ID: {thread.id}</span>
+          <a
+            href={parseURLSearchParams(searchParams, thread.no)}
+            onClick={onClickThread}
+            className="ml-2 text-xs text-gray-500 hover:underline hover:text-blue-500 mr-2"
+          >
+            No.{thread.no}
+          </a>
           {/* Right side: Reply Button */}
           <button
             onClick={onClickThread}
@@ -81,7 +81,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
 
       {/* Reply List */}
       {(thread.list?.length || 0) > 0 && (
-        <div className="mt-3 pt-2 border-t border-gray-200 space-y-2"> {/* space-y for spacing between replies */}
+        <div className="mt-3 pt-2 space-y-2"> {/* space-y for spacing between replies */}
           {thread!.list!.map((reply) => (
             <ReplyItem
               key={reply.no}

@@ -1,16 +1,29 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/icon" href="https://moonchan.xyz/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>月岛 - 匿名版</title>
-    <link href="/src/index.css" rel="stylesheet">
-    <link rel="apple-touch-icon" href="https://moonchan.xyz/favicon.ico" />
-    <link rel="manifest" href="/manifest.json" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/icon" href="https://moonchan.xyz/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>月岛 - 匿名版</title>
+  <link href="/src/index.css" rel="stylesheet">
+  <link rel="apple-touch-icon" href="https://moonchan.xyz/favicon.ico" />
+  <link rel="manifest" href="/manifest.json" />
+</head>
+
+<body>
+  <script>
+    // 解决 IE11 的 globalThis 缺失问题[4](@ref)
+    if (typeof globalThis === 'undefined') {
+      window.globalThis = window;
+    }
+  </script>
+  <div id="root">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>显然，你没有允许JavaScript的运行，而这个网站是通过react构建的。</noscript>
+    为什么没有正常加载，试试Vue2的旧版？<a target="_blank" href="https://moonchan.xyz/old.html">旧版</a>
+  </div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

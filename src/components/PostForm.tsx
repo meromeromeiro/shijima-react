@@ -10,7 +10,7 @@ const CloseIcon = () => (
     </svg>
 );
 
-// Emoticon data
+// Emoticon data (keeping as is)
 const EMOTICONS = [
     { value: "|∀ﾟ", label: "|∀ﾟ" }, { value: "(´ﾟДﾟ`)", label: "(´ﾟДﾟ`)" }, { value: "(;´Д`)", label: "(;´Д`)" },
     { value: "(｀･ω･)", label: "(｀･ω･)" }, { value: "(=ﾟωﾟ)=", label: "(=ﾟωﾟ)=" }, { value: "| ω・´)", label: "| ω・´)" },
@@ -53,8 +53,8 @@ function PostForm({
     onPostSuccess,
     formData,
     setFormData,
-    imageFile,
-    setImageFile,
+    imageFileURL, // string
+    setImageFile, // Now expected to be `React.Dispatch<React.SetStateAction<File | null>>`
 }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -63,6 +63,8 @@ function PostForm({
     const contentTextAreaRef = useRef<HTMLTextAreaElement>(null);
     const [selectedEmotion, setSelectedEmotion] = useState("");
     const [quotedPostIds, setQuotedPostIds] = useState<string[]>([]); // State for quoted post IDs
+    // 新增 state 变量，用于控制名称和标题部分的折叠状态，默认折叠 (true)
+    const [isNameTitleCollapsed, setIsNameTitleCollapsed] = useState(true);
 
     const formPageTitle = currentThreadId ? `回复 No.${currentThreadId}`
         : currentBoardTitle ? `在版块 ${currentBoardTitle} 发布新串`
@@ -74,8 +76,6 @@ function PostForm({
             setError(null);
             setSuccessMessage(null);
             setSelectedEmotion("");
-            // Reset quoted IDs when form becomes visible or context changes
-            setQuotedPostIds([]);
         }
     }, [isVisible, currentBoardId, currentThreadId]);
 
@@ -92,11 +92,9 @@ function PostForm({
                 ids.push(match[1]);
             }
         }
-        // Optionally, if you only want to show unique previews:
-        // setQuotedPostIds(Array.from(new Set(ids)));
         // For now, show a preview for each mention:
         setQuotedPostIds(ids);
-    }, [formData.content]);
+    }, [formData]);
 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -111,6 +109,50 @@ function PostForm({
             setImageFile(null);
         }
     };
+
+    // New handler for pasting images
+    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const items = e.clipboardData?.items;
+        if (items) {
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    if (file) {
+                        e.preventDefault(); // Prevent default paste behavior (e.g., pasting image as base64 in text)
+                        setImageFile(file);
+                        break; // Process only the first image
+                    }
+                }
+            }
+        }
+    };
+
+    // New handlers for dropping images
+    const handleDrop = (e: React.DragEvent<HTMLFormElement>) => {
+        console.log(e);
+
+        e.stopPropagation(); // Stop propagation to avoid bubbling up
+        e.preventDefault(); // Prevent default browser file handling (e.g., opening file)
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].type.startsWith('image/')) {
+                    const file = files[i];
+                    setImageFile(file);
+                    // Optionally, clear text area content if an image is dropped
+                    // setFormData(prev => ({ ...prev, content: '' }));
+                    break; // Process only the first image
+                }
+            }
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLFormElement>) => {
+        e.preventDefault(); // Allow drop
+        e.stopPropagation();
+    };
+
 
     const handleEmotionSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const emotionText = e.target.value;
@@ -143,7 +185,7 @@ function PostForm({
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!formData.content?.trim() && !imageFile) {
+        if (!formData.content?.trim() && !imageFileURL) {
             setError("内容和图片至少需要一项。");
             return;
         }
@@ -152,11 +194,7 @@ function PostForm({
         setIsSubmitting(true);
 
         try {
-            // The API function needs the boardId and threadId directly
-            // formData.boardId and formData.threadId might not be what you intend to send
-            // You're using searchParam.get("bid") and searchParam.get("tid")
-            // Or currentBoardId / currentThreadId if those are preferred for submission
-            const boardIdToSubmit = currentThreadId ? undefined : (searchParam.get("bid") || currentBoardId);
+            const boardIdToSubmit = currentBoardId || searchParam.get("bid");
             const threadIdToSubmit = currentThreadId || searchParam.get("tid");
 
 
@@ -166,15 +204,12 @@ function PostForm({
                 n: formData.name,
                 t: formData.title,
                 txt: formData.content,
-                p: imageFile,
+                p: imageFileURL, // imageFile is now the File object
             }, boardIdToSubmit, threadIdToSubmit);
 
 
             if (result && (result.status === 200 || result.status === 201)) {
                 setSuccessMessage("发布成功！");
-                // if (onPostSuccess) {
-                //   onPostSuccess(result.data); // Pass any relevant data back
-                // }
                 onPostSuccess();
                 // Keep name/email, clear others
                 setFormData(prev => ({ name: prev.name, email: prev.email, title: '', content: '' }));
@@ -184,7 +219,7 @@ function PostForm({
 
                 const imageInput = document.getElementById('post-image') as HTMLInputElement;
                 if (imageInput) {
-                    imageInput.value = '';
+                    imageInput.value = ''; // Clear file input
                 }
 
                 setTimeout(() => {
@@ -207,8 +242,6 @@ function PostForm({
 
     return (
         <div className="fixed inset-0 w-full h-full bg-white z-[70] flex flex-col p-0 lg:inset-auto lg:top-0 lg:right-0 lg:w-128 lg:h-128 shadow-xl">
-        {/* <div className="fixed inset-0 top-0 left-0 w-full h-full bg-white z-[70] flex flex-col p-0 lg:w-128 lg:h-128 lg:right-0"> */}
-            {/* Header */}
             <div className="h-14 flex-shrink-0 bg-gray-100 border-b border-gray-200 flex items-center justify-between px-3">
                 <h2 className="text-base font-medium text-gray-700 truncate">
                     {formPageTitle}
@@ -228,23 +261,44 @@ function PostForm({
                     {error && <p className="mb-3 p-3 text-sm text-red-700 bg-red-100 rounded-md shadow">{error}</p>}
                     {successMessage && <p className="mb-3 p-3 text-sm text-green-700 bg-green-100 rounded-md shadow">{successMessage}</p>}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Name and Title inputs */}
-                        <div className="grid grid-cols-1 gap-4"> {/* md:grid-cols-2 if you want them side-by-side on larger screens */}
-                            <div>
-                                <label htmlFor="post-name" className="block text-sm font-medium text-gray-700 mb-1">名称</label>
-                                <input type="text" id="post-name" name="name" value={formData.name} onChange={handleInputChange} placeholder="无名氏" className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
-                            </div>
-                            {/* Title is usually only for new threads, not replies. Conditional rendering might be needed. */}
-                            <div>
-                                <label htmlFor="post-title" className="block text-sm font-medium text-gray-700 mb-1">标题</label>
-                                <input type="text" id="post-title" name="title" value={formData.title} onChange={handleInputChange} placeholder="无标题" className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                    <form onSubmit={handleSubmit} className="space-y-4" onDrop={handleDrop} onDragOver={handleDragOver}>
+                        {/* 折叠区域：名称和标题输入 */}
+                        <button
+                            type="button" // 确保这是按钮类型，避免触发表单提交
+                            onClick={() => setIsNameTitleCollapsed(!isNameTitleCollapsed)}
+                            className="w-full flex justify-between items-center text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            <span>展开更多</span> {/* 折叠按钮的文本 */}
+                            {/* 折叠/展开图标，使用 Tailwind 的 `rotate-180` 和 `transition` 实现动画效果 */}
+                            <svg
+                                className={`w-5 h-5 transition-transform duration-200 ${isNameTitleCollapsed ? '' : 'rotate-180'}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        {/* 根据 isNameTitleCollapsed 状态决定是否显示内容 */}
+                        <div className={`${isNameTitleCollapsed ? 'hidden' : 'block'} mt-2`}>
+                            {/* 原始的 Name and Title inputs */}
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    {/* <label htmlFor="post-name" className="block text-sm font-medium text-gray-700 mb-1">名称</label> */}
+                                    <input type="text" id="post-name" name="name" value={formData.name} onChange={handleInputChange} placeholder="无名氏" className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                                </div>
+                                <div>
+                                    {/* <label htmlFor="post-title" className="block text-sm font-medium text-gray-700 mb-1">标题</label> */}
+                                    <input type="text" id="post-title" name="title" value={formData.title} onChange={handleInputChange} placeholder="无标题" className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                                </div>
                             </div>
                         </div>
 
                         {/* Emotion Select Dropdown */}
                         <div className="mb-2"> {/* Adjusted margin for consistency */}
-                            <label htmlFor="emotion-select" className="block text-sm font-medium text-gray-700 mb-1">表情</label>
+                            {/* <label htmlFor="emotion-select" className="block text-sm font-medium text-gray-700 mb-1">表情</label> */}
                             <select
                                 id="emotion-select"
                                 value={selectedEmotion}
@@ -268,7 +322,8 @@ function PostForm({
                                 id="post-content" name="content"
                                 value={formData.content} onChange={handleInputChange}
                                 rows={6} // Initial rows, resize-y allows user adjustment
-                                required={!imageFile} // Content required if no image
+                                required={!imageFileURL} // Content required if no image
+                                onPaste={handlePaste} // Add onPaste handler here
                                 className="w-full flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-y"
                             ></textarea>
                         </div>
@@ -289,14 +344,13 @@ function PostForm({
                         <div>
                             <label htmlFor="post-image" className="block text-sm font-medium text-gray-700 mb-1">图片 (选填)</label>
                             <input type="file" id="post-image" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-                            {imageFile && (
+                            {imageFileURL && ( // Use imagePreviewUrl for rendering
                                 <div className="mt-2"> {/* Wrap image preview for better layout */}
                                     <p className="text-xs text-gray-500">预览:</p>
                                     <img
                                         className='mt-1 h-48 w-auto object-contain border border-gray-200 rounded'
-                                        src={URL.createObjectURL(imageFile)}
-                                        alt={imageFile.name}
-                                    // No need for onLoad to revoke here if imageFile state handles it
+                                        src={imageFileURL} // Use imagePreviewUrl here
+                                        alt="Image preview" // More generic alt text
                                     />
                                 </div>
                             )}
@@ -305,7 +359,7 @@ function PostForm({
                         {/* Action Buttons */}
                         <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200 mt-4">
                             <button type="button" onClick={onClose} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">取消</button>
-                            <button type="submit" disabled={isSubmitting || (!formData.content?.trim() && !imageFile)} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+                            <button type="submit" disabled={isSubmitting || (!formData.content?.trim() && !imageFileURL)} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
                                 {isSubmitting ? '提交中...' : '发布'}
                             </button>
                         </div>
