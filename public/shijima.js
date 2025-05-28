@@ -1,5 +1,11 @@
 const APIURL = "/shijima/"
 
+function escapeHTML(str) {
+    if (typeof str !== 'string') return ''; // Handle non-string inputs
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
 
 window.onload = function () {
     const sideBar = new Vue({
@@ -14,10 +20,10 @@ window.onload = function () {
                     // },{
                     //     id : 2,
                     //     name : "测试2"
-//                }, {
-//                    id: 4,
-//                    name: "综合版4",
-//                    intro: "为什么是4呢",
+                    //                }, {
+                    //                    id: 4,
+                    //                    name: "综合版4",
+                    //                    intro: "为什么是4呢",
                 }, {
                     id: 12,
                     name: "串",
@@ -29,10 +35,10 @@ window.onload = function () {
                 }, {
                     id: 34,
                     name: "动画漫画"
-//                }, {
-//                    id: 35,
-//                    name: "NSFW",
-//                    intro: "Not Safe for Work"
+                    //                }, {
+                    //                    id: 35,
+                    //                    name: "NSFW",
+                    //                    intro: "Not Safe for Work"
                 }, {
                     id: 45,
                     name: "贴图"
@@ -40,39 +46,39 @@ window.onload = function () {
                     id: 46,
                     name: "贴图(R18)",
                     intro: "含有露骨的描写请慎重游览",
-                },{
-                    id : 47,
-                    name : "桃饱",
-                intro: "客官请吃桃",
-//                },{
-//                    id : 48,
-//                    name : "随缘(R18)",
-//                    intro: "放置希望翻译的散图,含有露骨的描写请慎重游览",
-//                },{
-//                    id: 99,
-//                    name: "门房"
-//                },{
-//                    id : 100,
-//                    name : "/int/",
-//intro:"lonely",
-                },{
-                    id : 101,
-                    name : "在这理发店",
-                    intro : "记得备份",
-                },{
-                    id : 102,
-                    name : "自习室",
-                    intro : "万古如长夜(注意备份),也欢迎一起发串的",
-                },{
-                    id : 104,
-                    name : "时尚",
-//                    intro : "别发轮子新闻",
-                },{
-                        id : 105,
-                        name : "Paper Reading",
-                },{
-                        id : 106,
-                        name : "意识形态分析",
+                }, {
+                    id: 47,
+                    name: "桃饱",
+                    intro: "客官请吃桃",
+                    //                },{
+                    //                    id : 48,
+                    //                    name : "随缘(R18)",
+                    //                    intro: "放置希望翻译的散图,含有露骨的描写请慎重游览",
+                    //                },{
+                    //                    id: 99,
+                    //                    name: "门房"
+                    //                },{
+                    //                    id : 100,
+                    //                    name : "/int/",
+                    //intro:"lonely",
+                }, {
+                    id: 101,
+                    name: "在这理发店",
+                    intro: "记得备份",
+                }, {
+                    id: 102,
+                    name: "自习室",
+                    intro: "万古如长夜(注意备份),也欢迎一起发串的",
+                }, {
+                    id: 104,
+                    name: "时尚",
+                    //                    intro : "别发轮子新闻",
+                }, {
+                    id: 105,
+                    name: "Paper Reading",
+                }, {
+                    id: 106,
+                    name: "意识形态分析",
                 },
             ]
         },
@@ -123,7 +129,7 @@ window.onload = function () {
 
     const threadPanel = new Vue({
         el: '#thread-panel',
-        created(){
+        created() {
 
         },
         data: {
@@ -157,27 +163,27 @@ window.onload = function () {
             window.directViewThreadPanel = this.directView
         },
         methods: {
-            directView(){
+            directView() {
                 var url = new URL(window.location);
-                if (url.searchParams.get("bid") == null){
+                if (url.searchParams.get("bid") == null) {
                     this.bid = 0
                     this.lengthOfLastPage = -1
                     this.threads = []
                     this.tid = 0
                     return;
-                }else{
+                } else {
                     this.bid = parseInt(url.searchParams.get("bid"), 10)
                 }
-                if (url.searchParams.get("tid") == null){
+                if (url.searchParams.get("tid") == null) {
                     this.tid = 0
-                }else{
+                } else {
                     this.tid = parseInt(url.searchParams.get("tid"), 10)
                 }
-                if (url.searchParams.get("page") == null){
+                if (url.searchParams.get("page") == null) {
                     this.tPage = 0
-                }else{
+                } else {
                     this.tPage = parseInt(url.searchParams.get("page"), 10)
-                } ;
+                };
                 fetch(APIURL,
                     {
                         method: "POST",
@@ -330,7 +336,7 @@ window.onload = function () {
                 // console.log(h)
                 if (h == "") return "";
                 if (!regex.test(h)) {
-//                    return "/pic403.webp"; //屏蔽未认证图床
+                    //                    return "/pic403.webp"; //屏蔽未认证图床
                 }
                 h = h.replace("i.pximg.net", "pximg.moonchan.xyz")
                 h = h.replace("pbs.twimg.com", "twimg.moonchan.xyz")
@@ -355,166 +361,213 @@ window.onload = function () {
             txtFilter: function (t) {
                 t = t.replaceAll("\n", "<br>")
                 return t
+            },
+        formatQuotedText: function (text) {
+            if (!text) return '';
+
+            // Split the original raw text into lines.
+            const originalLines = text.split('\n');
+
+            // Process each line: escape its content and wrap if it's a quote.
+            const formattedLines = originalLines.map(line => {
+                // Step 1: HTML escape the content of the line first.
+                // This prevents any user-supplied HTML within the line from being rendered.
+                const escapedLineContent = escapeHTML(line);
+
+                // Step 2: Check if the *original* line (before escaping) started with '>'.
+                // We use the original line for this check because the user typed '>',
+                // not '>'.
+                if (line.trim().startsWith('>')) {
+                    // Step 3: Wrap the *escaped* line content in our trusted `<span>` tag.
+                    // The <span> and class are safe because we control them.
+                    return `<span class="green-quote">${escapedLineContent}</span>`;
+                }
+                return escapedLineContent; // If not a quote, just return the escaped line.
+            });
+
+            // Step 4: Join the formatted (and escaped) lines with `<br>` tags.
+            // The `<br>` tags are safe because we control them.
+            const finalHTML = formattedLines.join('<br>');
+
+            // Step 5 (MOST IMPORTANT SECURITY STEP): Sanitize the entire resulting HTML string
+            // using DOMPurify. This catches any remaining potential XSS vectors that might
+            // have slipped through or any non-standard HTML that could be exploited.
+            if (typeof DOMPurify !== 'undefined') {
+                return DOMPurify.sanitize(finalHTML);
+            } else {
+                // Fallback for development if DOMPurify is not loaded, but log a warning.
+                // In production, ensure DOMPurify is always available.
+                console.warn('DOMPurify not available, returning unsanitized HTML. This is a potential security risk.');
+                return finalHTML; // Less secure fallback
             }
         }
+
+            // The original txtFilter is now replaced/integrated into formatQuotedText
+            // If you still need the original txtFilter for other purposes, keep it,
+            // but for the h-threads-content div, use formatQuotedText.
+            // txtFilter: function (t) {
+            //     t = t.replaceAll("\n", "<br>")
+            //     return t
+            // }
+    }
     });
 
-    const postPanel = new Vue({
-        el: '#poster-continer',
-        data: {
-            showPostContiner: false,
-            isDisabled: false,
+const postPanel = new Vue({
+    el: '#poster-continer',
+    data: {
+        showPostContiner: false,
+        isDisabled: false,
 
-            infotitle: " ",
-            infotxt: " ",
+        infotitle: " ",
+        infotxt: " ",
 
-            title: "",
-            name: "",
-            pic: "",
-            id: "",
-            auth: "",
-            txt: "",
+        title: "",
+        name: "",
+        pic: "",
+        id: "",
+        auth: "",
+        txt: "",
 
-            bid: 0,
-            tid: 0,
+        bid: 0,
+        tid: 0,
 
-            tPage: 0,
-            bPage: 0,
+        tPage: 0,
+        bPage: 0,
+    },
+    mounted() {
+        this.directView()
+        window.directViewPostPanel = this.directView
+    },
+    methods: {
+        directView() {
+            this.infotitle = ""
+            this.infotxt = ""
+            var url = new URL(window.location);
+            if (url.searchParams.get("bid") == null) {
+                // console.log("??????")
+                this.showPostContiner = false
+                this.bid = 0
+                // console.log(this.lengthOfLastPage)
+                // console.log(this.threads)
+                // console.log(this.tid)
+                // console.log(this.bid)
+                // console.log("*****")
+                return
+            } else {
+                this.bid = parseInt(url.searchParams.get("bid"), 10)
+            }
+            if (url.searchParams.get("tid") == null) {
+                this.tid = 0
+                return
+            } else {
+                this.tid = parseInt(url.searchParams.get("tid"), 10)
+            }
         },
-        mounted(){
-            this.directView()
-            window.directViewPostPanel = this.directView
-        },
-        methods: {
-            directView(){
-                this.infotitle = ""
-                this.infotxt = ""
-                var url = new URL(window.location);
-                if (url.searchParams.get("bid") == null){
-                    // console.log("??????")
-                    this.showPostContiner = false
-                    this.bid = 0
-                    // console.log(this.lengthOfLastPage)
-                    // console.log(this.threads)
-                    // console.log(this.tid)
-                    // console.log(this.bid)
-                    // console.log("*****")
-                    return
-                }else{
-                    this.bid = parseInt(url.searchParams.get("bid"), 10)
-                }
-                if (url.searchParams.get("tid") == null){
-                    this.tid = 0
-                    return
-                }else{
-                    this.tid = parseInt(url.searchParams.get("tid"), 10)
-                }
-            },
-            postThread() {
-                // console.log("strat postThread")
-                this.isDisabled = true;
-                if (this.txt == "" && this.pic == "") {
+        postThread() {
+            // console.log("strat postThread")
+            this.isDisabled = true;
+            if (this.txt == "" && this.pic == "") {
+                this.isDisabled = false;
+                return;
+            }
+            var page = 0
+            if (threadPanel.tid > 0) {
+                page = threadPanel.tPage
+                // console.log(threadPanel.tPage);
+                // console.log(page);
+                // console.log("----");
+                threadPanel.threads[0].list = [];
+            } else {
+                threadPanel.threads = [];
+            }
+            var data = {
+                m: "post",
+                tid: this.tid,
+                bid: this.bid,
+                n: this.name,
+                t: this.title,
+                id: this.id,
+                auth: this.auth,
+                txt: this.txt,
+                p: this.pic,
+                page: page,
+            }
+            fetch(APIURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: JSON.stringify(data)// body data type must match "Content-Type" header
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // this.lengthOfLastPage = data.length;
+                    threadPanel.threads = data;
+                    threadPanel.lengthOfLastPage = 15;
+                    console.log("postThreadFlushBoard");
+                    console.log(this.bid);
+                    console.log(this.bPage);
+                    console.log(this.threads);
+                    console.log(this.lengthOfLastPage);
+
                     this.isDisabled = false;
-                    return;
-                }
-                var page = 0
-                if (threadPanel.tid > 0) {
-                    page = threadPanel.tPage
-                    // console.log(threadPanel.tPage);
-                    // console.log(page);
-                    // console.log("----");
-                    threadPanel.threads[0].list = [];
-                } else{
-                    threadPanel.threads = [];
-                }
-                var data = {
-                    m: "post",
-                    tid: this.tid,
-                    bid: this.bid,
-                    n: this.name,
-                    t: this.title,
-                    id: this.id,
-                    auth: this.auth,
-                    txt: this.txt,
-                    p: this.pic,
-                    page: page,
-                }
-                fetch("/api/", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: JSON.stringify(data)// body data type must match "Content-Type" header
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        // this.lengthOfLastPage = data.length;
-                        threadPanel.threads = data;
-                        threadPanel.lengthOfLastPage = 15;
-                        console.log("postThreadFlushBoard");
-                        console.log(this.bid);
-                        console.log(this.bPage);
-                        console.log(this.threads);
-                        console.log(this.lengthOfLastPage);
-
-                        this.isDisabled = false;
-                        console.log(data.length)
-                        if (data.length > 0) {
-                            this.txt = ""
-                            this.pic = ""
-                        }
-                    });
-            }
+                    console.log(data.length)
+                    if (data.length > 0) {
+                        this.txt = ""
+                        this.pic = ""
+                    }
+                });
         }
-    })
+    }
+})
 
-    const headerPanel = new Vue({
-        el: '#header-panel',
-        data: {
-            id: "",
-            auth: "",
-            isAbled: true
+const headerPanel = new Vue({
+    el: '#header-panel',
+    data: {
+        id: "",
+        auth: "",
+        isAbled: true
+    },
+    mounted() {
+        if (localStorage.auth == "" || localStorage.auth == null) {
+            this.getID()
+        }
+        if (localStorage.id && localStorage.auth) {
+            this.id = localStorage.id;
+            this.auth = localStorage.auth;
+            postPanel.id = localStorage.id;
+            postPanel.auth = localStorage.auth;
+        }
+
+    },
+
+    methods: {
+        delID() {
+            localStorage.id = "";
+            localStorage.auth = "";
+            this.id = localStorage.id;
+            this.auth = localStorage.auth;
+            postPanel.id = localStorage.id;
+            postPanel.auth = localStorage.auth;
         },
-        mounted() {
-            if (localStorage.auth == "" || localStorage.auth == null){
-                                this.getID()
-                        }
-            if (localStorage.id && localStorage.auth) {
-                this.id = localStorage.id;
-                this.auth = localStorage.auth;
-                postPanel.id = localStorage.id;
-                postPanel.auth = localStorage.auth;
-            }
+        getID() {
+            this.isAbled = false
 
-        },
+            fetch(APIURL + "cookie")
+                .then(response => response.json())
+                .then(data => {
+                    // this.lengthOfLastPage = data.length;
+                    this.id = data.id
+                    this.auth = data.auth
+                    localStorage.id = data.id
+                    localStorage.auth = data.auth
+                    postPanel.id = localStorage.id;
+                    postPanel.auth = localStorage.auth;
 
-        methods: {
-            delID() {
-                localStorage.id = "";
-                localStorage.auth = "";
-                this.id = localStorage.id;
-                this.auth = localStorage.auth;
-                postPanel.id = localStorage.id;
-                postPanel.auth = localStorage.auth;
-            },
-            getID() {
-                this.isAbled = false
+                    this.isAbled = true
+                });
+        }
+    },
 
-                fetch(APIURL + "cookie")
-                    .then(response => response.json())
-                    .then(data => {
-                        // this.lengthOfLastPage = data.length;
-                        this.id = data.id
-                        this.auth = data.auth
-                        localStorage.id = data.id
-                        localStorage.auth = data.auth
-                        postPanel.id = localStorage.id;
-                        postPanel.auth = localStorage.auth;
-
-                        this.isAbled = true
-                    });
-            }
-        },
-
-    })
+})
 }
