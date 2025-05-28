@@ -1,6 +1,7 @@
 import React, { } from 'react';
 import ThreadItem from './ThreadItem.tsx';
 import Pagination from './Pagination.tsx'; // Assuming you have this component
+import ExpandableContent from './ExpandableContent.tsx';
 
 const ITEMS_PER_PAGE = 30; // Or get this from a config
 
@@ -78,7 +79,7 @@ function ThreadListDisplay({
 
     return (
         <div id="thread-panel" className="px-2 md:px-4">
-            {threads.map(thread => <ThreadItem key={thread.no} thread={thread} />)}
+            {threads.map(thread => <ExpandableContent maxHeight={threads.length === 1 ? 9999999999999 : 1280}><ThreadItem key={thread.no} thread={thread} /></ExpandableContent>)}
         </div>
     );
 }
