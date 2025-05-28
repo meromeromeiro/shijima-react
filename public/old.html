@@ -1,0 +1,234 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--link rel="icon" href="https://avemujica.bang-dream.com/wordpress/wp-content/themes/avemujica/img/moon-r.svg" type="image/svg+xml"-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="referrer" content="never">
+    <title>月岛 - 匿名版</title>
+    <script src="/vue2.6.14.js"></script>
+    <script src="shijima.js"></script>
+    <link rel="stylesheet" href="shijima.css" media="all">
+    <link rel="stylesheet" href="uikit.min.css" media="all">
+    <link rel="stylesheet" href="h.desktop.css" media="all">
+    <script>
+        window.addEventListener('popstate', function () {
+            directViewPostPanel()
+            directViewThreadPanel()
+        });
+    </script>
+</head>
+
+<body>
+
+    <div id="horizenHook" style="width: 100%;"></div>
+    <div id="virticalHook" style="height: 100%;float: right;"></div>
+
+    <aside id="left-panel" class="left-panel" style="overflow-x: hidden;">
+        <div style="text-align: center;  width: 135px;">
+            <div class="box" style="margin: 20px auto;">
+                <!-- <img src="/mascot.webp" style="width: 80px; padding-left: 20px;"> -->
+            </div>
+            <div class="box" style="margin-bottom: 24px;">
+                <a href="https://moonchan.xyz/">
+                    MoonChan.xyz
+                    <br>
+                    月岛匿名版
+                </a>
+            </div>
+            <!-- <div class="box" >讨饭</div> -->
+            <div class="box" >
+                <div class="board-name" v-for="board in boards" :key="board.id" @click="viewBoard(board)">
+                    <a :href="'?bid=' + board.id" onclick="return false;">{{board.name}}</a>
+                </div>
+            </div>
+<br>
+        <div class="box">
+                <div class="board-name">
+                <a href="/del.html" style="">自助删帖</a>
+                </div>
+                <div class="board-name">
+                <a href="https://upload.moonchan.xyz/" style="">图床</a>
+                </div>
+        </div>
+        </div>
+    </aside>
+    <div class="container">
+        <header id="header-panel">
+
+            <br>
+            <span style="margin-right: 40%">
+                <a href="/site.html" style="color: ivory;">nyaa镜像地址</a>
+|
+                <a href="/xjb.html" style="color: ivory;">瞎几把导航</a>
+|
+                <a href="https://g.moonchan.xyz/blacksheepwall" style="color: ivory;">google镜像</a>
+|
+                <a href="https://scholar.moonchan.xyz/" style="color: ivory;">google学术</a>
+|
+                <a href="https://xxxxxxx.showtheoldmanthedoor.ml/" style="color: ivory;">别的什么岛</a>(<a href="https://damedesu.1145141919810.org/" style="color: ivory;">啊——</a>)
+|
+                <a href="https://chat.moonchan.xyz/" style="color: ivory;">chat</a>
+            </span>
+
+            <span v-if="id !== ''">ID:{{id}} <a style="color: ivory;" @click="delID()">销毁饼干</a></span>
+            <span v-else><a style="color: ivory;" @click="getID()" v-if="isAbled">点击获取饼干</a></span>
+        </header>
+        <main class="main-panel">
+            <div style="margin: 0 auto; display: flex;" >
+                <div id="poster-continer" v-if="showPostContiner">
+                    <div id="title">
+                        {{infotitle}}
+                    </div>
+                    <div style="margin: 0 auto; width: auto;">
+                        <table>
+                            <tr>
+                                <td align="right" class="form-name">标题：   </td>
+                                <td> <input name="n" size="28" v-model="title" maxlength="100" type="text"> </td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="form-name">名称：   </td>
+                                <td> <input name="t" size="28" v-model="name" maxlength="100" type="text"> <input value="送出" type="submit" @click="postThread()" :disabled="isDisabled"></td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="form-name">正文：   </td>
+                                <td> <textarea  rows="4" cols="30" v-model="txt" maxlength="10000"      @keydown.ctrl.enter="postThread()"  ></textarea> </td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="form-name">图片：   </td>
+                                <td> <input name="p" size="28" v-model="pic" maxlength="4096" type="text"> </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                    <input type="hidden" name="id" size="28" v-model="id" maxlength="100" type="text">
+                    <input type="hidden" name="auth" size="28" v-model="auth" maxlength="100" type="text">
+
+                    <input type="hidden" name="tid" size="28" v-model="tid" maxlength="100" type="text">
+                    <input type="hidden" name="bid" size="28" v-model="bid" maxlength="100" type="text">
+                    <div>
+                        {{infotxt}}
+                    </div>
+                </div>
+            </div>
+            <hr style="background: #39f; color: #fff; text-shadow: none; clear: inherit;">
+            <div id="thread-panel">
+                <div class="h-threads-item uk-clearfixe" v-for="thread in threads" :threads-id="thread.no">
+                    <div class="h-threads-item-main">
+
+                        <div class="h-threads-img-box" v-if="thread.hasOwnProperty('p')">
+                            <a :href="thread.p | picChecker" rel="_blank" target="_blank" class="h-threads-img-a">
+                                <img :src="thread.p | picChecker" class="h-threads-img" style="float: left;">
+                            </a>
+                        </div>
+
+                        <div class="h-threads-info">
+                            <span class="h-threads-info-title" v-if="thread.hasOwnProperty('t')">{{thread.t}}</span>
+                            <span class="h-threads-info-title" v-else>无标题</span>
+                            <span class="h-threads-info-email" v-if="thread.hasOwnProperty('n')">{{thread.n}}</span>
+                            <span class="h-threads-info-email" v-else>无名氏</span>
+                            <span class="h-threads-info-createdat">{{thread.d | dateFilter}}</span>
+                            <span class="h-threads-info-uid" v-if="thread.hasOwnProperty('id')">ID:{{thread.id}}</span>
+                            <!-- <span class="h-threads-info-report-btn">
+                                [<a href="#">私信用户</a>]
+                            </span>
+                            <span class="h-threads-info-report-btn">
+                                [<a href="#">收藏</a>]
+                            </span> -->
+                            <a :href="'?bid=' + bid + '&tid=' + thread.no" class="h-threads-info-id" onclick="return false;" v-on:click.exact="viewThread(thread, 0, thread.no)" v-on:click.ctrl="viewThread(thread, 0, thread.no)">No.{{thread.no}}</a>
+                            <span class="h-threads-info-reply-btn" v-if="bid != 0">
+                                [<a :href="'?bid=' + bid + '&tid=' + thread.no" onclick="return false;" v-on:click.exact="viewThread(thread, 0, 0)" v-on:click.ctrl="viewThread(thread, 0, 0)">回应</a>]
+                            </span>
+                        </div>
+                        <div class="h-threads-content" style="white-space: pre-line;">{{thread.txt}}</div>
+                        <div class="h-threads-tips" v-if="thread.num > 5">
+                            <i data-threads-id="$thread.id" class="uk-icon-plus-square h-threads-show-all-btn"></i>
+                            <span class="warn_txt2">回应有 {{thread.num - 5}} 篇被省略。要阅读所有回应请按下回应链接。</span>
+                        </div>
+                        <div class="h-threads-item-replys">
+                            <div class="h-threads-item-reply" v-for="reply in thread.list" :data-threads-id="reply.no">
+                                <div class="h-threads-item-reply-icon">…</div>
+                                <div class="h-threads-item-reply-main">
+
+                                    <div class="h-threads-img-box" v-if="reply.hasOwnProperty('p')">
+                                        <a :href="reply.p | picChecker" rel="_blank" target="_blank" class="h-threads-img-a">
+                                            <img :src="reply.p | picChecker" class="h-threads-img" style="float: left;">
+                                        </a>
+                                    </div>
+
+                                    <div class="h-threads-info">
+                                        <span class="h-threads-info-title" v-if="reply.hasOwnProperty('t')">{{reply.t}}</span>
+                                        <span class="h-threads-info-title" v-else>无标题</span>
+                                        <span class="h-threads-info-email" v-if="reply.hasOwnProperty('n')">{{reply.n}}</span>
+                                        <span class="h-threads-info-email" v-else>无名氏</span>
+                                        <span class="h-threads-info-createdat">{{reply.d | dateFilter}}</span>
+                                        <span class="h-threads-info-uid" v-if="reply.hasOwnProperty('id')">ID:{{reply.id}}</span>
+                                        <!-- <span class="h-threads-info-report-btn">
+                                            [<a href="#">私信用户</a>]
+                                        </span>
+                                        <span class="h-threads-info-report-btn">
+                                            [<a href="#">收藏</a>]
+                                        </span> -->
+                                        <a :href="'?bid=' + bid + '&tid=' + thread.no" class="h-threads-info-id" onclick="return false;" v-on:click.exact="viewThread(thread, 0, reply.no)" v-on:click.ctrl="viewThread(thread, 0, reply.no)">No.{{reply.no}}</a>
+                                    </div>
+                                    <div class="h-threads-content" style="white-space: pre-line;">{{reply.txt}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="background: #39f; color: #fff; text-shadow: none; clear:left;">
+
+                </div>
+                <div v-if="tid == 0">
+                    <span v-if="lengthOfLastPage > 0"><input value="下一页" type="button" @click="nextPage()" style="width: 100%; height: 68px;" ></span>
+                    <span v-else-if="lengthOfLastPage == 0">已经到底了</span>
+                    <div v-else>
+                        <!--img src="/tsukishima_shijima.webp" style="height: 100%; float: left; padding-left: 20%;padding-bottom: 6em;"-->
+                        <div style="margin: auto;">
+                            <br><br>
+                            <p>
+                                月島　しじま
+                                <br>
+                                月岛　静寂
+                            </p>
+                            <p>《蘑菇的拟态日常》</p>
+                            <br><br>
+                            <p>
+                                1、点击右上角获得饼干
+                                <br>
+                                2、点击左侧板块游览
+                            </p>
+                            <p>请注意获取饼干有次数限制</p>
+                            <p><b>请使用CN地区IP发言</b></p>
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <ul class="uk-pagination uk-pagination-left h-pagination">
+                        <li v-if="tPage > 0"><a :href="'?bid=' + bid + '&tid=' + threads[0].no" onclick="return false;" v-on:click.exact="viewThread(threads[0], 0, 0)" v-on:click.ctrl="viewThread(threads[0], 0, 0)">首页</a></li>
+                        <li v-if="tPage > 0"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage-1)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage-1, 0)" v-on:click.ctrl="viewThread(threads[0], tPage-1, 0)">上一页</a></li>
+                        <li v-else class="uk-disabled">上一页</li>
+                        <li v-if="(tPage -5) > -1"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage-5)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage-5, 0)" v-on:click.ctrl="viewThread(threads[0], tPage-5, 0)">{{tPage - 5}}</a></li>
+                        <li v-if="(tPage -4) > -1"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage-4)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage-4, 0)" v-on:click.ctrl="viewThread(threads[0], tPage-4, 0)">{{tPage - 4}}</a></li>
+                        <li v-if="(tPage -3) > -1"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage-3)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage-3, 0)" v-on:click.ctrl="viewThread(threads[0], tPage-3, 0)">{{tPage - 3}}</a></li>
+                        <li v-if="(tPage -2) > -1"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage-2)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage-2, 0)" v-on:click.ctrl="viewThread(threads[0], tPage-2, 0)">{{tPage - 2}}</a></li>
+                        <li v-if="(tPage -1) > -1"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage-1)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage-1, 0)" v-on:click.ctrl="viewThread(threads[0], tPage-1, 0)">{{tPage - 1}}</a></li>
+                        <li class="uk-active"><span>{{tPage}}</span></li>
+                        <li v-if="(tPage +1) < Math.ceil(-threads[0].num / 30)"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage+1)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage+1, 0)" v-on:click.ctrl="viewThread(threads[0], tPage+1, 0)">{{tPage + 1}}</a></li>
+                        <li v-if="(tPage +2) < Math.ceil(-threads[0].num / 30)"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage+2)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage+2, 0)" v-on:click.ctrl="viewThread(threads[0], tPage+2, 0)">{{tPage + 2}}</a></li>
+                        <li v-if="(tPage +3) < Math.ceil(-threads[0].num / 30)"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage+3)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage+3, 0)" v-on:click.ctrl="viewThread(threads[0], tPage+3, 0)">{{tPage + 3}}</a></li>
+                        <li v-if="(tPage +4) < Math.ceil(-threads[0].num / 30)"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage+4)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage+4, 0)" v-on:click.ctrl="viewThread(threads[0], tPage+4, 0)">{{tPage + 4}}</a></li>
+                        <li v-if="(tPage +5) < Math.ceil(-threads[0].num / 30)"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage+5)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage+5, 0)" v-on:click.ctrl="viewThread(threads[0], tPage+5, 0)">{{tPage + 5}}</a></li>
+                        <li v-if="(tPage +1) < Math.ceil(-threads[0].num / 30)"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (tPage+1)" onclick="return false;" v-on:click.exact="viewThread(threads[0], tPage+1, 0)" v-on:click.ctrl="viewThread(threads[0], tPage+1, 0)">下一页</a></li>
+                        <li v-else class="uk-disabled">下一页</li>
+                        <li v-if="tPage+1 < Math.ceil(-threads[0].num / 30)"><a :href="'?bid=' + bid + '&tid=' + threads[0].no + '&page=' + (Math.ceil(-threads[0].num / 30)-1)" onclick="return false;" v-on:click.exact="viewThread(threads[0], (Math.ceil(-threads[0].num / 30)-1), 0)" v-on:click.ctrl="viewThread(threads[0], (Math.ceil(-threads[0].num / 30)-1), 0)">末页</a></li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+</body>
+
+</html>

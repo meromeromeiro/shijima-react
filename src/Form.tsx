@@ -7,15 +7,15 @@ import { uploadFile } from './services/upload';
 export default function Form({ isVisible, onClose, onPostSuccess, title }) {
     const [searchParams] = useSearchParams();
     const [formData, setFormData] = useState({ name: "", email: "", title: "", content: "" });
-    const [imageFile, setImageFile] = useState("");
+    const [imageURL, setImageURL] = useState("");
 
     const onUploadFile = async (file: File) => {
         console.log(file);
         if (file) {
-            setImageFile("https://media.tenor.com/WX_LDjYUrMsAAAAm/loading.webp");
+            setImageURL("https://media.tenor.com/WX_LDjYUrMsAAAAm/loading.webp");
             const url = await uploadFile(file);
             console.log(url);
-            setImageFile(url);
+            setImageURL(url);
         }
     }
 
@@ -36,10 +36,11 @@ export default function Form({ isVisible, onClose, onPostSuccess, title }) {
         currentBoardTitle={title}
         currentBoardId={searchParams.get("bid")}
         currentThreadId={searchParams.get("tid")}
-        onPostSuccess={() => { setImageFile(""); onPostSuccess() }}
+        onPostSuccess={() => { setImageURL(""); onPostSuccess() }}
         formData={formData}
         setFormData={setFormData}
-        imageFileURL={imageFile}
+        imageURL={imageURL}
         setImageFile={onUploadFile}
+        setImageURL={setImageURL}
     />
 }

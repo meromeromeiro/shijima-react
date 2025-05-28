@@ -5,6 +5,7 @@ import ReplyItem from './ReplyItem.tsx';
 import ReplyRenderer from './ReplyRenderer.jsx';
 import ThreadImage from './ThreadImage.tsx'
 import { formatUtcToLocalReadableTS } from '../services/utils.ts'
+import ReactionsPicker from './ReactionsPicker.tsx'; // 根据你的文件路径调整
 
 function ThreadItem({ thread }: { thread: Thread }) {
   if (!thread) return null;
@@ -79,9 +80,11 @@ function ThreadItem({ thread }: { thread: Thread }) {
         </p>
       )}
 
+      <ReactionsPicker tid={thread.no}></ReactionsPicker>
+
       {/* Reply List */}
       {(thread.list?.length || 0) > 0 && (
-        <div className="mt-3 pt-2 space-y-2"> {/* space-y for spacing between replies */}
+        <div className="space-y-2"> {/* space-y for spacing between replies */}
           {thread!.list!.map((reply) => (
             <ReplyItem
               key={reply.no}

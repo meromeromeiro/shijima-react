@@ -28,6 +28,10 @@ export default defineConfig({
         target: 'https://moonchan.xyz', // e.g., http://localhost:8080 if backend is local
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api\/v2/, '/api/v2') // Usually not needed if target path is same
+      },
+      '/shijima/':{
+        target: 'https://moonchan.xyz',
+        changeOrigin: true,
       }
     }
   },

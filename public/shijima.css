@@ -1,0 +1,171 @@
+body {
+    background: #bbf;
+    margin: 0%;
+}
+
+.thread-item {
+    margin: 15px 40px;
+}
+
+.thread-item-main {
+    font-size: 20px;
+    line-height: 22px;
+}
+
+.thread-reply {
+    margin: 3px 0px;
+}
+
+.threads-info {
+    font-size: 16px;
+}
+
+.thread-info-title {
+    color: #660000;
+    font-weight: bold;
+    margin: 0px 5px;
+}
+
+.thread-info-name {
+    color: #006600;
+    font-weight: bold;
+    margin: 0px 5px;
+}
+
+thread-info-reply-button,
+.thread-info-id {
+    margin: 0px 10px;
+}
+
+.thread-content {
+    font-size: 18px;
+    line-height: 22px;
+    margin: 15px 40px;
+}
+
+.thread-item-reply-icon,
+.thread-item-reply {
+    display: table-cell;
+}
+
+.thread-item-reply {
+    background: #aae;
+}
+
+
+#header-panel {
+    background-color: darkslateblue;
+    height: 6em;
+    width: 100%;
+    margin: 0%;
+    padding: auto;
+
+    vertical-align: center;
+    text-align: right;
+    color: ivory;
+    /* font-size: 2em; */
+    /* display: table-cell; */
+    /* position: relative; */
+    /* z-index: 999; */
+}
+
+.container {
+    position: relative;
+    /* text-align: center; */
+
+}
+
+.left-panel {
+    background-color: lightcyan;
+    width: 150px;
+    /* display: flex; */
+    height: 100%;
+    position: fixed;
+    z-index: 9;
+}
+
+.center-panel {
+    background-color: whitesmoke;
+    /* width: 6600px; */
+    display: flex;
+    height: 100%;
+    float: left;
+}
+
+.main-panel {
+    background-color: whitesmoke;
+    margin-left: 150px;
+    /* width: 600px; */
+    /* display: flex; */
+    /* padding: 0; */
+    /* text-align: center; */
+    /* float: left;  */
+    /* height: 99999px; */
+}
+
+#thread-pannel {
+    padding-left: 24px;
+}
+
+.right-panel {
+    background-color: darkslateblue;
+    width: 300px;
+    display: flex;
+    height: 100%;
+    /* float: left; */
+}
+
+.form-name {
+    background-color: wheat;
+    /* display: inline; */
+    height: 100%;
+    width: 60px;
+    text-align: right;
+    vertical-align: center;
+}
+
+#title {
+    text-shadow: grey;
+    font-size: 28px;
+    margin: 24px;
+}
+
+#poster-continer {
+    margin: 0 auto;
+    /* display: flex; */
+    width: auto;
+    text-align: center;
+}
+
+.box {
+    /* display: flex;  */
+    margin: 8px auto;
+}
+
+.board-name {
+    width: 100%;
+    margin: 4px auto;
+    text-align: left;
+    padding-left: 36px;
+}
+
+.f-left {
+    float: left;
+}
+
+.f-right {
+    float: right;
+}
+
+.center {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    background-color: #000;
+    width: 50%;
+    height: 50%;
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -ms-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}

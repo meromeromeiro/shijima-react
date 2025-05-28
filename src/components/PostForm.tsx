@@ -53,8 +53,9 @@ function PostForm({
     onPostSuccess,
     formData,
     setFormData,
-    imageFileURL, // string
+    imageURL, // string
     setImageFile, // Now expected to be `React.Dispatch<React.SetStateAction<File | null>>`
+    setImageURL,
 }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -65,6 +66,8 @@ function PostForm({
     const [quotedPostIds, setQuotedPostIds] = useState<string[]>([]); // State for quoted post IDs
     // 新增 state 变量，用于控制名称和标题部分的折叠状态，默认折叠 (true)
     const [isNameTitleCollapsed, setIsNameTitleCollapsed] = useState(true);
+    const [imageInputMethod, setImageInputMethod] = useState('upload'); // 'upload' (默认) 或 'url'
+    const [manualImageUrl, setManualImageUrl] = useState(''); // 存储用户输入的 URL 字符串
 
     const formPageTitle = currentThreadId ? `回复 No.${currentThreadId}`
         : currentBoardTitle ? `在版块 ${currentBoardTitle} 发布新串`
@@ -182,10 +185,8 @@ function PostForm({
         }
     };
 
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!formData.content?.trim() && !imageFileURL) {
+    const submit = async () => {
+        if (!formData.content?.trim() && !imageURL) {
             setError("内容和图片至少需要一项。");
             return;
         }
@@ -204,7 +205,7 @@ function PostForm({
                 n: formData.name,
                 t: formData.title,
                 txt: formData.content,
-                p: imageFileURL, // imageFile is now the File object
+                p: imageURL, // imageFile is now the File object
             }, boardIdToSubmit, threadIdToSubmit);
 
 
@@ -236,7 +237,27 @@ function PostForm({
         } finally {
             setIsSubmitting(false);
         }
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        await submit();
     };
+
+    const handleKeyDown = async (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            e.preventDefault(); // 阻止默认换行行为
+            await submit();
+            // 执行提交逻辑
+        }
+    };
+
+
+    // 5. 处理输入方式改变（单选按钮点击）
+    const handleMethodChange = (method) => {
+        setImageInputMethod(method);
+    };
+
 
     if (!isVisible) return null;
 
@@ -322,8 +343,9 @@ function PostForm({
                                 id="post-content" name="content"
                                 value={formData.content} onChange={handleInputChange}
                                 rows={6} // Initial rows, resize-y allows user adjustment
-                                required={!imageFileURL} // Content required if no image
+                                required={!imageURL} // Content required if no image
                                 onPaste={handlePaste} // Add onPaste handler here
+                                onKeyDown={handleKeyDown}
                                 className="w-full flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-y"
                             ></textarea>
                         </div>
@@ -342,24 +364,85 @@ function PostForm({
 
                         {/* Image Upload */}
                         <div>
-                            <label htmlFor="post-image" className="block text-sm font-medium text-gray-700 mb-1">图片 (选填)</label>
-                            <input type="file" id="post-image" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-                            {imageFileURL && ( // Use imagePreviewUrl for rendering
-                                <div className="mt-2"> {/* Wrap image preview for better layout */}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">图片 (选填)</label>
+
+                            {/* 图片输入方式选择 */}
+                            <div className="mb-4 flex flex-vertical">
+                                <div className="flex items-center mr-2">
+                                    <input
+                                        id="method-upload"
+                                        name="image-input-method" // 相同的 name 确保它们是同一组单选按钮
+                                        type="radio"
+                                        value="upload"
+                                        checked={imageInputMethod === 'upload'}
+                                        onChange={() => handleMethodChange('upload')}
+                                        className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+                                    />
+                                    <label htmlFor="method-upload" className="ml-2 block text-sm text-gray-900 cursor-pointer">
+                                        上传图片 (默认)
+                                    </label>
+                                </div>
+                                <div className="flex items-center mr-2">
+                                    <input
+                                        id="method-url"
+                                        name="image-input-method"
+                                        type="radio"
+                                        value="url"
+                                        checked={imageInputMethod === 'url'}
+                                        onChange={() => handleMethodChange('url')}
+                                        className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+                                    />
+                                    <label htmlFor="method-url" className="ml-2 block text-sm text-gray-900 cursor-pointer">
+                                        通过URL添加图片
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* 条件渲染输入框 */}
+                            {imageInputMethod === 'upload' ? (
+                                // 上传图片输入框
+                                <div>
+                                    <input
+                                        type="file"
+                                        id="post-image"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    />
+                                </div>
+                            ) : (
+                                // URL 输入框
+                                <div>
+                                    <input
+                                        type="text"
+                                        id="post-image-url" // 不同的 ID，避免冲突
+                                        value={imageURL}
+                                        onChange={(e) => setImageURL(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder="在此输入图片URL，例如：https://example.com/image.jpg"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    />
+                                </div>
+                            )}
+
+                            {/* 图片预览 (无论哪种方式，都显示此预览) */}
+                            {imageURL && (
+                                <div className="mt-2">
                                     <p className="text-xs text-gray-500">预览:</p>
                                     <img
                                         className='mt-1 h-48 w-auto object-contain border border-gray-200 rounded'
-                                        src={imageFileURL} // Use imagePreviewUrl here
-                                        alt="Image preview" // More generic alt text
+                                        src={imageURL}
+                                        alt="Image preview"
                                     />
                                 </div>
                             )}
                         </div>
 
+
                         {/* Action Buttons */}
                         <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200 mt-4">
                             <button type="button" onClick={onClose} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">取消</button>
-                            <button type="submit" disabled={isSubmitting || (!formData.content?.trim() && !imageFileURL)} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+                            <button type="submit" disabled={isSubmitting || (!formData.content?.trim() && !imageURL)} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
                                 {isSubmitting ? '提交中...' : '发布'}
                             </button>
                         </div>
