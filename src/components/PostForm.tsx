@@ -131,7 +131,7 @@ function PostForm({
     };
 
     // New handlers for dropping images
-    const handleDrop = (e: React.DragEvent<HTMLFormElement>) => {
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         console.log(e);
 
         e.stopPropagation(); // Stop propagation to avoid bubbling up
@@ -151,7 +151,7 @@ function PostForm({
         }
     };
 
-    const handleDragOver = (e: React.DragEvent<HTMLFormElement>) => {
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault(); // Allow drop
         e.stopPropagation();
     };
@@ -282,7 +282,7 @@ function PostForm({
                     {error && <p className="mb-3 p-3 text-sm text-red-700 bg-red-100 rounded-md shadow">{error}</p>}
                     {successMessage && <p className="mb-3 p-3 text-sm text-green-700 bg-green-100 rounded-md shadow">{successMessage}</p>}
 
-                    <form onSubmit={handleSubmit} className="space-y-4" onDrop={handleDrop} onDragOver={handleDragOver}>
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         {/* 折叠区域：名称和标题输入 */}
                         <button
                             type="button" // 确保这是按钮类型，避免触发表单提交
@@ -363,7 +363,7 @@ function PostForm({
                         )}
 
                         {/* Image Upload */}
-                        <div>
+                        <div onDrop={handleDrop} onDragOver={handleDragOver}>
                             <label className="block text-sm font-medium text-gray-700 mb-1">图片 (选填)</label>
 
                             {/* 图片输入方式选择 */}
