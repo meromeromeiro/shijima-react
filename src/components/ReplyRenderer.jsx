@@ -87,7 +87,7 @@ const ReplyRenderer = ({ text }) => {
         }
 
         // Rule 2: Greentext and inline QuoteLinks
-        const isGreenText = line.startsWith('>');
+        const isGreenText = line.startsWith('>') || line.startsWith('＞') || line.startsWith('》');
         let textToParseForQuotes = line;
         let greentextPrefixElement = null;
 

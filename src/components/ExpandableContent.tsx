@@ -37,7 +37,7 @@ function ExpandableContent({ children, maxHeight = 1280 }) {
             {/* 内容区域 */}
             <div
                 ref={contentRef}
-                className={`overflow-hidden transition-all duration-300 ease-in-out`}
+                className={`${(needsTruncation && !isExpanded) ? "overflow-hidden" : ""} transition-all duration-300 ease-in-out`}
                 style={(needsTruncation && !isExpanded) ? { maxHeight: `${maxHeight}px` } : {}}
             >
                 {children}

@@ -377,7 +377,7 @@ window.onload = function () {
                 // Step 2: Check if the *original* line (before escaping) started with '>'.
                 // We use the original line for this check because the user typed '>',
                 // not '>'.
-                if (line.trim().startsWith('>')) {
+                if (line.trim().startsWith('>') || line.trim().startsWith('＞') || line.trim().startsWith('》')) {
                     // Step 3: Wrap the *escaped* line content in our trusted `<span>` tag.
                     // The <span> and class are safe because we control them.
                     return `<span class="green-quote">${escapedLineContent}</span>`;

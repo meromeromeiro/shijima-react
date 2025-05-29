@@ -4,6 +4,7 @@ import { Thread } from '../services/type';
 import ReplyRenderer from './ReplyRenderer';
 import ThreadImage from './ThreadImage.tsx'
 import { formatUtcToLocalReadableTS } from '../services/utils.ts'
+import LazyLoadPlaceholder from './LazyLoadPlaceholder.tsx';
 function ReplyItem({ reply, opNo }: { reply: Thread, opNo: number }) {
   if (!reply) return null;
 
@@ -62,9 +63,11 @@ function ReplyItem({ reply, opNo }: { reply: Thread, opNo: number }) {
 
       {/* Row 3: Image and Content (if replies can have images) */}
       {reply.p && (
-        <div className="mb-1.5">
-          <ThreadImage imageUrl={reply.p} />
-        </div>
+        <LazyLoadPlaceholder className='h-5'>
+          <div className="mb-1.5">
+            <ThreadImage imageUrl={reply.p} />
+          </div>
+        </LazyLoadPlaceholder>
       )}
 
       <div

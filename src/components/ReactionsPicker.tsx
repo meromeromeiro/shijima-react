@@ -3,8 +3,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 // 常用颜文字和 ASCII 颜文字数据
 const commonEmoticons = [
     '👍', '❤️', '😂', '🎉', '👏', '🔥', '🙏', '💯', '🤩',
-    '❓', '👀', '😂', '🤔', '😅', '💢', '😴', '🤤', '🐖',
-    '💩','✘','✔','🔺','♪','🎵',
+    '❓', '👀', '🤔', '😅', '💢', '😴', '🤤', '🐖',
+    '💩', '✘', '✔', '🔺', '♪', '🎵', '🥺', '😭','😩'
 ];
 const asciiKaomoji = [
     // 现有颜文字列表
@@ -66,7 +66,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
         // 在发起请求前，如果组件已经卸载，则直接返回
         if (!isMounted.current) return;
 
-        setLoading(true); // 立即设置加载状态
+        // setLoading(true); // 立即设置加载状态
         setError(""); // 清空错误信息
 
         try {
@@ -104,14 +104,16 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
 
     // 组件挂载时获取初始 Reactions，并在卸载时清理请求
     useEffect(() => {
-        isMounted.current = true; // 组件挂载时设置 isMounted 为 true
-
         const initialFetchController = new AbortController();
-        // 调用 fetchReactions，并传递信号
+        isMounted.current = true; // 组件挂载时设置 isMounted 为 true
         fetchReactions(initialFetchController.signal);
-
+        // const timeout = setInterval(() => {
+        //     // 调用 fetchReactions，并传递信号
+        //     fetchReactions(initialFetchController.signal);
+        // }, 2000);
         // Cleanup function for unmount
         return () => {
+            // clearTimeout(timeout);
             isMounted.current = false; // 组件卸载时设置 isMounted 为 false
             initialFetchController.abort(); // 中止初始请求
 
@@ -324,8 +326,8 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
                         <button
                             key={emoji}
                             className={`px-2 py-0.5 rounded-full flex items-center space-x-0.5 text-xs cursor-pointer transition-colors duration-200 flex-shrink-0 ${reactionsData.my_reaction === emoji
-                                    ? 'bg-blue-500 text-white hover:bg-blue-600' // 我的 reaction
-                                    : 'bg-blue-100 text-blue-800 hover:bg-blue-200' // 其他 reaction
+                                ? 'bg-blue-500 text-white hover:bg-blue-600' // 我的 reaction
+                                : 'bg-blue-100 text-blue-800 hover:bg-blue-200' // 其他 reaction
                                 }`}
                             onClick={() => handleExistingReactionClick(emoji)}
                             disabled={loading}

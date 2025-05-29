@@ -6,6 +6,7 @@ import ReplyRenderer from './ReplyRenderer.jsx';
 import ThreadImage from './ThreadImage.tsx'
 import { formatUtcToLocalReadableTS } from '../services/utils.ts'
 import ReactionsPicker from './ReactionsPicker.tsx'; // 根据你的文件路径调整
+import LazyLoadPlaceholder from './LazyLoadPlaceholder.tsx';
 
 function ThreadItem({ thread }: { thread: Thread }) {
   if (!thread) return null;
@@ -80,7 +81,9 @@ function ThreadItem({ thread }: { thread: Thread }) {
         </p>
       )}
 
-      <ReactionsPicker tid={thread.no}></ReactionsPicker>
+      <LazyLoadPlaceholder className={"h-5"}>
+        <ReactionsPicker tid={thread.no}></ReactionsPicker>
+      </LazyLoadPlaceholder>
 
       {/* Reply List */}
       {(thread.list?.length || 0) > 0 && (
