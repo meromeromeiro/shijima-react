@@ -44,7 +44,7 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
     // 只有在不是打开添加板块模态框的情况下才关闭主菜单
     // 因为打开模态框时主菜单也需要关闭
     if (link.action !== 'addBoard') {
-        onClose();
+      onClose();
     }
   };
 
@@ -69,8 +69,8 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
 
     // 提示用户如果 ID 已存在会覆盖
     if (boards[id.toString()] && !confirm(`板块 ID ${id} 已存在，继续将更新其标题。确定吗？`)) {
-        setAddBoardError("操作已取消。");
-        return;
+      setAddBoardError("操作已取消。");
+      return;
     }
 
     // 调用 Hook 提供的 addBoard 函数
@@ -120,7 +120,7 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
                   {(boardCategory.items || [boardCategory]).map((board) => (
                     <li key={board.id || board.name}>
                       <a
-                        href="#"
+                        href={`/?bid=${board.id}`}
                         onClick={(e) => {
                           e.preventDefault();
                           onSelectBoard(board);
@@ -142,7 +142,7 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
             <li key={`custom-board-${id}`}>
               <div className="flex items-center justify-between px-4 py-2 text-gray-700 hover:bg-gray-200 focus:outline-none hover:bg-gray-200">
                 <a
-                  href="#"
+                  href={`/?bid=${id}`}
                   onClick={(e) => {
                     e.preventDefault();
                     onSelectBoard({ id: parseInt(id), name: title });
@@ -245,11 +245,11 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
               </button>
             </div>
             <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
-                onClick={handleCloseAddBoardModal}
-                aria-label="关闭"
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
+              onClick={handleCloseAddBoardModal}
+              aria-label="关闭"
             >
-                ×
+              ×
             </button>
           </div>
         </div>

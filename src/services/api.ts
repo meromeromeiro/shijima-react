@@ -142,13 +142,12 @@ export const getBoardStructure = async () => {
         }, {
             id: 104,
             name: "时尚",
-            //                    intro : "别发轮子新闻",
         }, {
             id: 105,
             name: "Paper Reading",
         }, {
-            id: 106,
-            name: "意识形态分析",
+            id: 107,
+            name: "传送点",
         },
 
     ];

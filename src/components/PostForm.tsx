@@ -195,8 +195,8 @@ function PostForm({
         setIsSubmitting(true);
 
         try {
-            const boardIdToSubmit = currentBoardId || searchParam.get("bid");
-            const threadIdToSubmit = currentThreadId || searchParam.get("tid");
+            const boardIdToSubmit = currentBoardId || searchParam.get("bid") || 1;
+            const threadIdToSubmit = currentThreadId || searchParam.get("tid") || 0;
 
 
             const result = await submitPost({
@@ -425,17 +425,6 @@ function PostForm({
                                 </div>
                             )}
 
-                            {/* 图片预览 (无论哪种方式，都显示此预览) */}
-                            {imageURL && (
-                                <div className="mt-2">
-                                    <p className="text-xs text-gray-500">预览:</p>
-                                    <img
-                                        className='mt-1 h-48 w-auto object-contain border border-gray-200 rounded'
-                                        src={imageURL}
-                                        alt="Image preview"
-                                    />
-                                </div>
-                            )}
                         </div>
 
 
@@ -446,6 +435,19 @@ function PostForm({
                                 {isSubmitting ? '提交中...' : '发布'}
                             </button>
                         </div>
+
+
+                        {/* 图片预览 (无论哪种方式，都显示此预览) */}
+                        {imageURL && (
+                            <div className="mt-2">
+                                <p className="text-xs text-gray-500">预览:</p>
+                                <img
+                                    className='mt-1 h-48 w-auto object-contain border border-gray-200 rounded'
+                                    src={imageURL}
+                                    alt="Image preview"
+                                />
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>

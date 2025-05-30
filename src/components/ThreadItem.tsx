@@ -68,7 +68,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
         className="text-sm text-gray-800 break-words parsed-html-content flex-grow min-w-0" // min-w-0 for flex child truncation
       // dangerouslySetInnerHTML={{ __html: thread.content }}
       >
-        <ReplyRenderer text={thread.txt} />
+        <ReplyRenderer text={thread.txt} tid={thread.no} />
       </div>
 
       {/* Omitted replies message */}
@@ -93,6 +93,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
               key={reply.no}
               reply={{ ...reply, isPo: reply.id === thread.id }}
               opNo={thread.no}
+              pn={Math.ceil(Math.abs(thread.num || 0) / 30)-1}
             />
           ))}
         </div>

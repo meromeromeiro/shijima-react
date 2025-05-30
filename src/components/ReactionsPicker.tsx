@@ -4,12 +4,12 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 const commonEmoticons = [
     '👍', '❤️', '😂', '🎉', '👏', '🔥', '🙏', '💯', '🤩',
     '❓', '👀', '🤔', '😅', '💢', '😴', '🤤', '🐖',
-    '💩', '✘', '✔', '🔺', '♪', '🎵', '🥺', '😭','😩'
+    '💩', '✘', '✔', '🔺', '♪', '🎵', '🥺', '😭', '😩'
 ];
 const asciiKaomoji = [
     // 现有颜文字列表
     "|∀ﾟ", "(´ﾟДﾟ`)", "(;´Д`)",
-    "(｀･ω･)", "(=ﾟωﾟ)=", "| ω・´)",
+    "(｀･ω･)", "(=ﾟωﾟ=)", "| ω・´)",
     "|-` )", "|д` )", "|ー` )",
     "|∀` )", "(つд⊂)", "(ﾟДﾟ≡ﾟДﾟ)",
     "(＾o＾)ﾉ", "(|||ﾟДﾟ)", "( ﾟ∀ﾟ)",
@@ -47,6 +47,7 @@ const asciiKaomoji = [
     'o(￣ヘ￣o＃)',
     '٩(๑❛ᴗ❛๑)۶',
     'ლ(′ー`ლ)',
+    '( *・ω・)✄╰ひ╯',
 ];
 
 // React ReactionsPicker 组件
@@ -62,11 +63,10 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
     const activeUserActionControllerRef = useRef<AbortController | null>(null);
 
     // 提取的 API Fetch 函数，现在可以接收一个 AbortSignal
-    const fetchReactions = useCallback(async (signal?: AbortSignal) => {
+    const fetchReactions = useCallback(async (signal) => {
         // 在发起请求前，如果组件已经卸载，则直接返回
         if (!isMounted.current) return;
 
-        // setLoading(true); // 立即设置加载状态
         setError(""); // 清空错误信息
 
         try {
@@ -82,7 +82,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
                     my_reaction: data.my_reaction || '',
                 });
             }
-        } catch (err: any) { // 捕获 AbortError 或其他错误
+        } catch (err) { // 捕获 AbortError 或其他错误
             if (err.name === 'AbortError') {
                 console.log('Fetch reactions aborted.');
                 // 如果是 AbortError，表示请求被取消，不视为错误，也不更新状态
@@ -106,14 +106,11 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
     useEffect(() => {
         const initialFetchController = new AbortController();
         isMounted.current = true; // 组件挂载时设置 isMounted 为 true
+        // setLoading(true); // Explicitly set loading for initial fetch
         fetchReactions(initialFetchController.signal);
-        // const timeout = setInterval(() => {
-        //     // 调用 fetchReactions，并传递信号
-        //     fetchReactions(initialFetchController.signal);
-        // }, 2000);
+
         // Cleanup function for unmount
         return () => {
-            // clearTimeout(timeout);
             isMounted.current = false; // 组件卸载时设置 isMounted 为 false
             initialFetchController.abort(); // 中止初始请求
 
@@ -126,7 +123,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
     }, [fetchReactions]); // 依赖 fetchReactions
 
     // 处理颜文字选择或点击已有颜文字按钮
-    const handleSetReaction = useCallback(async (reaction: string) => {
+    const handleSetReaction = useCallback(async (reaction) => {
         // 在新请求开始前，取消任何之前由用户触发的请求，以处理竞态条件
         if (activeUserActionControllerRef.current) {
             activeUserActionControllerRef.current.abort();
@@ -160,7 +157,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
                     if (errorJson && errorJson.error) {
                         errorMessage = errorJson.error;
                     }
-                } catch {
+                } catch (e) {
                     // ignore if json parsing fails
                 }
                 throw new Error(errorMessage); // 抛出错误以被 catch 捕获
@@ -170,7 +167,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
             // 传递相同的 signal，确保后续的 fetch 也可被取消
             await fetchReactions(signal);
 
-        } catch (err: any) {
+        } catch (err) {
             if (err.name === 'AbortError') {
                 console.log('Set reaction or subsequent fetch aborted.');
                 // 如果是 AbortError，不更新状态
@@ -194,9 +191,9 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
         }
     }, [tid, apiBaseUrl, fetchReactions]); // 依赖 fetchReactions
 
-    // --- 新增：处理浏览器后退按钮关闭 Picker 的逻辑 ---
+    // --- 处理浏览器后退按钮关闭 Picker 的逻辑 ---
     useEffect(() => {
-        const handlePopState = (event: PopStateEvent) => {
+        const handlePopState = (event) => {
             // 如果 Picker 正在显示，并且当前历史状态不再是 Picker 的特殊状态
             // 这意味着用户点击了浏览器的后退按钮，从 Picker 状态回到了之前的状态
             if (showPicker && (!event.state || !event.state.isReactionPickerOpen)) {
@@ -226,6 +223,23 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
             }
         };
     }, [showPicker]); // 依赖 showPicker，当 Picker 的显示状态改变时触发此 useEffect
+
+    // --- 新增：处理 Esc 键关闭 Picker 的逻辑 ---
+    useEffect(() => {
+        if (!showPicker) return; // Only add listener when picker is shown
+
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                setShowPicker(false);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [showPicker]); // Re-run when showPicker changes
 
     // 点击加号按钮
     const handlePlusClick = () => {
@@ -287,7 +301,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
                         </div>
                         <div>
                             <h4 className="text-sm font-medium text-gray-700 mb-1">ASCII 颜文字</h4>
-                            <div className="grid grid-cols-4 gap-1 p-1 border border-gray-200 rounded text-xs overflow-y-auto"> {/* max-h-60 保持滚动 */}
+                            <div className="grid grid-cols-4 gap-1 p-1 border border-gray-200 rounded text-xs overflow-y-auto"> {/* max-h-60 added to limit scrollable height */}
                                 {asciiKaomoji.map((kaomoji) => (
                                     <button
                                         key={kaomoji}
@@ -306,6 +320,22 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
                             aria-label="关闭"
                         >
                             ×
+                        </button>
+                        <button className="
+                            w-full           
+                            font-bold         /* 文字加粗 */
+                            py-2              /* 上下内边距 */
+                            px-4              /* 左右内边距 */
+                            rounded           /* 圆角 */
+                            focus:outline-none /* 聚焦时去除默认轮廓 */
+                            focus:ring-2      /* 聚焦时显示环状 */
+                            focus:ring-blue-500 /* 环状颜色 */
+                            focus:ring-opacity-75 /* 环状透明度 */
+                            transition-colors /* 颜色过渡动画 */
+                            duration-300      /* 过渡动画时长 */
+                        "
+                            onClick={() => setShowPicker(false)}>
+                            关闭
                         </button>
                     </div>
                 </div>

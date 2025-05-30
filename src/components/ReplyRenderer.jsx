@@ -1,8 +1,9 @@
 // ReplyRenderer.jsx
 import React from 'react';
 import QuoteLink from './QuoteLink.tsx'; // Adjust path if necessary
+import Mention from './Mention.tsx';
 
-const ReplyRenderer = ({ text }) => {
+const ReplyRenderer = ({ text, tid }) => {
   if (typeof text !== 'string' || !text.trim()) {
     return null;
   }
@@ -58,6 +59,37 @@ const ReplyRenderer = ({ text }) => {
 
         if (line.trim() === "") return <br key={index} />
 
+        // NEW RULE: @-prefixed lines
+        if (line.startsWith('@')) {
+          const firstSpaceIndex = line.indexOf(' ');
+          let mentionPrefix = line; // 默认值，如果一行中没有空格，则整个行都是mention部分
+          let contentAfterMention = '';
+
+          if (firstSpaceIndex !== -1) {
+            mentionPrefix = line.substring(0, firstSpaceIndex); // 第一个空格之前的部分 (包括 @)
+            contentAfterMention = line.substring(firstSpaceIndex + 1); // 第一个空格之后的部分
+          } else {
+            // 如果没有空格，mentionPrefix是整个line，contentAfterMention保持为空字符串
+            // 此时 mentionPrefix 就是 `@user` 或 `@all` 等
+          }
+
+          // 解析@后面的内容，以处理可能的QuoteLink
+          const parsedContent = parseLineForQuoteLinks(contentAfterMention);
+
+          return (
+            <>
+              <div key={index} className="mention-line">
+                <span className="mention-prefix font-medium text-blue-500 mr-2">{mentionPrefix}</span>
+                {/* 如果parsedContent不是空数组，则映射它 */}
+                {parsedContent.map((segment, i) => (
+                  <React.Fragment key={`mention-seg-${i}`}>{segment}</React.Fragment>
+                ))}
+              </div>
+              <Mention bot={mentionPrefix} tid={tid} query={contentAfterMention} />
+            </>
+          );
+        }
+
         // Rule 1: Markdown H2-style Link (## [Text](URL))
         if (line.startsWith('## ')) {
           const contentAfterMarker = line.substring(3); // Remove "## "
@@ -110,7 +142,6 @@ const ReplyRenderer = ({ text }) => {
             </div>
           );
         }
-
 
         return (
           <div

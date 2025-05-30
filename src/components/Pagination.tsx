@@ -42,6 +42,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPages }) => {
         setSearchParams(prev => {
             const newParams = new URLSearchParams(prev); // Create a new instance
             newParams.set("pn", pn);
+            newParams.delete("r");
             return newParams;
         }); // Using replace to avoid polluting browser history
     };

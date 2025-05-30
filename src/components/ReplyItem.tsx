@@ -5,7 +5,7 @@ import ReplyRenderer from './ReplyRenderer';
 import ThreadImage from './ThreadImage.tsx'
 import { formatUtcToLocalReadableTS } from '../services/utils.ts'
 import LazyLoadPlaceholder from './LazyLoadPlaceholder.tsx';
-function ReplyItem({ reply, opNo }: { reply: Thread, opNo: number }) {
+function ReplyItem({ reply, opNo, pn }: { reply: Thread, opNo: number, pn: number }) {
   if (!reply) return null;
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +24,7 @@ function ReplyItem({ reply, opNo }: { reply: Thread, opNo: number }) {
   function onClickThread(e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) {
     e.preventDefault();
     setSearchParams(prev => {
-      prev.set("pn", "0")
+      prev.set("pn", String(pn))
       prev.set("tid", String(opNo));
       prev.set("r", String(reply.no));
       return prev;
@@ -74,7 +74,7 @@ function ReplyItem({ reply, opNo }: { reply: Thread, opNo: number }) {
         className="text-sm text-gray-700 break-words parsed-html-content"
       // dangerouslySetInnerHTML={{ __html: reply.content }}
       >
-        <ReplyRenderer text={reply.txt} />
+        <ReplyRenderer text={reply.txt} tid={reply.no} />
       </div>
     </div>
   );
