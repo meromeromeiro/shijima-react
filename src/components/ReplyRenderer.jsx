@@ -1,5 +1,5 @@
 // ReplyRenderer.jsx
-import React from 'react';
+import React, { Fragment } from 'react';
 import QuoteLink from './QuoteLink.tsx'; // Adjust path if necessary
 import Mention from './Mention.tsx';
 
@@ -77,7 +77,7 @@ const ReplyRenderer = ({ text, tid }) => {
           const parsedContent = parseLineForQuoteLinks(contentAfterMention);
 
           return (
-            <>
+            <React.Fragment key={index}>
               <div key={index} className="mention-line">
                 <span className="mention-prefix font-medium text-blue-500 mr-2">{mentionPrefix}</span>
                 {/* 如果parsedContent不是空数组，则映射它 */}
@@ -86,7 +86,7 @@ const ReplyRenderer = ({ text, tid }) => {
                 ))}
               </div>
               <Mention bot={mentionPrefix} tid={tid} query={contentAfterMention} />
-            </>
+            </React.Fragment>
           );
         }
 

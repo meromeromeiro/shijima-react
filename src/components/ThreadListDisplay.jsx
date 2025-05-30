@@ -79,7 +79,7 @@ function ThreadListDisplay({
 
     return (
         <div id="thread-panel" className="px-2 md:px-4">
-            {threads.map(thread => <ExpandableContent maxHeight={threads.length === 1 ? 9999999999999 : 1280}><ThreadItem key={thread.no} thread={thread} /></ExpandableContent>)}
+            {threads.map(thread => <ExpandableContent key={thread.no} maxHeight={threads.length === 1 ? 9999999999999 : 1280}><ThreadItem key={thread.no} thread={thread} /></ExpandableContent>)}
         </div>
     );
 }

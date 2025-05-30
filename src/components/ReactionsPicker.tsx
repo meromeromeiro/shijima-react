@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import InputFieldWithButton from './InputFieldWithButton';
 
 // 常用颜文字和 ASCII 颜文字数据
 const commonEmoticons = [
@@ -248,6 +249,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
 
     // 点击颜文字选择器中的颜文字
     const handleEmojiSelect = (emoji) => {
+        if (!emoji) return;
         handleSetReaction(emoji);
     };
 
@@ -314,6 +316,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
                                 ))}
                             </div>
                         </div>
+                        <InputFieldWithButton handleButtonClick={(inputValue) => handleEmojiSelect(inputValue)}></InputFieldWithButton>
                         <button
                             className="absolute top-1 right-1 text-gray-500 hover:text-gray-800 text-lg font-bold"
                             onClick={() => setShowPicker(false)}
