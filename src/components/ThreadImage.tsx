@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { getRandomIntInclusive, validEhentaiUrl, parseRootDomain } from "../services/utils"
+import { PhotoView } from 'react-photo-view';
 
 interface ThreadImageProps {
     /** The URL of the image. If not provided, the component renders nothing. */
@@ -80,7 +81,7 @@ function getTryList(urlString: string): string[] {
         console.log("Invalid URL in getTryList:", urlString, e);
         return ["https://moonchan.xyz/favicon.ico"];
     }
-    return [previewUrl(urlString), urlString, "https://moonchan.xyz/favicon.ico"]
+    return [urlString, previewUrl(urlString), "https://moonchan.xyz/favicon.ico"]
 }
 
 const PlayIcon = () => (
@@ -109,6 +110,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
     }
 
     const [index, setIndex] = useState(0);
+    const [onloaded, setOnloaded] = useState(false);
 
     const hrefUrl = useMemo(() => getHrefUrl(imageUrl), [imageUrl]);
     const tryList = useMemo(() => getTryList(imageUrl), [imageUrl]);
@@ -158,27 +160,34 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
     };
 
     return (
-        <a
-            href={hrefUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            // Using inline-flex so the parent takes the size of the content,
-            // allowing the absolute positioned play button to center correctly.
-            className={`relative inline-flex ${linkClassName}`.trim()}
-        >
+        <PhotoView key={currentImageSrc} src={currentImageSrc}>
+            {/* <a
+                href={hrefUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                // Using inline-flex so the parent takes the size of the content,
+                // allowing the absolute positioned play button to center correctly.
+                className={`relative inline-flex ${onloaded ? '' : "h-48"} ${linkClassName}`.trim()}
+            > */}
+            {/* 240620 修改图片显示方式 */}
             <img
                 src={currentImageSrc}
                 alt={altText}
                 className={`${defaultImageClasses} ${imageClassName}`.trim()}
                 loading="lazy"
                 onError={handleImageError}
+                onLoad={() => { console.log(currentImageSrc); setOnloaded(true) }}
+                onLoadedData={() => { setOnloaded(true) }}
             />
-            {shouldShowPlayButton && (
+
+            {/* {shouldShowPlayButton && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black opacity-30 rounded-sm pointer-events-none">
                     <PlayIcon />
                 </div>
-            )}
-        </a>
+            )} */}
+            {/* </a> */}
+        </PhotoView>
+
     );
 };
 

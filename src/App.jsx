@@ -8,6 +8,7 @@ import Threads from './Threads.tsx'
 import { getCookie } from './services/api'
 import { getCookie as getAuth } from './services/utils.ts';
 import { setDocumentTitle } from './services/utils.ts';
+import { PhotoProvider } from 'react-photo-view';
 
 function App() {
   if (getAuth("auth") === null) getCookie();
@@ -39,10 +40,16 @@ function App() {
   return <div className='bg-green h-auto w-auto'>
     <Navbar onToggleOffCanvas={() => { setMenuIsOpen(true) }} title={title} onTogglePostForm={() => { setPostformIsOpen(true) }} />
 
-    <Threads refresh={refresh} />
+    <PhotoProvider>
+      <Threads refresh={refresh} />
+    </PhotoProvider>
 
-    <Menu isOpen={menuIsOpen} onClose={() => { setMenuIsOpen(false) }} onSelectBoard={onSelectBoard}></Menu>
-    <Form isVisible={postFormIsOpen} title={board.name} onClose={() => { setPostformIsOpen(false) }} onPostSuccess={onPostSuccess} />
+    <PhotoProvider>
+
+      <Menu isOpen={menuIsOpen} onClose={() => { setMenuIsOpen(false) }} onSelectBoard={onSelectBoard}></Menu>
+      <Form isVisible={postFormIsOpen} title={board.name} onClose={() => { setPostformIsOpen(false) }} onPostSuccess={onPostSuccess} />
+    </PhotoProvider>
+
   </div>
 
 }

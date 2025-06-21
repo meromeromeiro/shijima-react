@@ -43,6 +43,34 @@ const EMOTICONS = [
     { value: "⊂彡☆))д´)", label: "⊂彡☆))д´)" }, { value: "⊂彡☆))∀`)", label: "⊂彡☆))∀`)" }, { value: "(´∀((☆ミつ", label: "(´∀((☆ミつ" }
 ];
 
+const STICKS = [
+    "https://i0.hdslb.com/bfs/article/23ed8a5fa76479a90a8dc69e40425940353403349.png",
+    "https://i0.hdslb.com/bfs/article/14e67886e66a0cc8f3581ab612a1b56f353403349.png",
+    "https://i0.hdslb.com/bfs/article/08ef142acb8a5f0e23b98ea0ab435d4b353403349.png",
+    "https://i0.hdslb.com/bfs/article/851291b9974d7cb81024176a1c47443b353403349.png",
+    "https://i0.hdslb.com/bfs/article/fc96002e58176af7f1859856522fc4e0353403349.png",
+    "https://i0.hdslb.com/bfs/article/cb2c46052beb23492dc22cdefc78d3e7353403349.png",
+    "https://i0.hdslb.com/bfs/article/e5b2e62cfa5a30ee6ba8b1350c59bd43353403349.png",
+    "https://i0.hdslb.com/bfs/article/eaea603d26077cb929e50813e7ca0135353403349.png",
+    "https://i0.hdslb.com/bfs/article/89117a3b6421c4de81432597008f4cee353403349.png",
+    "https://i0.hdslb.com/bfs/article/a52f29e03a04f3d01f4c4d56e01fb6ec353403349.png",
+    "https://i0.hdslb.com/bfs/article/aeb4a09bf9e9058363be68d2c761bc97353403349.png",
+    "https://i0.hdslb.com/bfs/article/7747f8811c0be648656626465e14ac66353403349.png",
+    "https://i0.hdslb.com/bfs/article/a18bedaa8496e85ae94b562ef15a8af8353403349.png",
+    "https://i0.hdslb.com/bfs/article/61a827e6090420bcda6ab44c7976b10e353403349.png",
+    "https://i0.hdslb.com/bfs/article/c8465f1eab05236aee9be24e6b7d58ac353403349.png",
+    "https://i0.hdslb.com/bfs/article/8d153e462a9e7ea80c0e14b196a51d84353403349.png",
+    "https://i0.hdslb.com/bfs/article/4a16a7b79ee6a5dac95d73ccfef699fa353403349.png",
+    "https://i0.hdslb.com/bfs/article/edf92cd6872a6bfa4b3a610e5aa4eb45353403349.png",
+    "https://i0.hdslb.com/bfs/article/d4a0a9ff35c87dc78ac3a3d699521607353403349.png",
+    "https://i0.hdslb.com/bfs/article/e06afec74e1e8b77d26d982eb1fb376e353403349.png",
+    "https://i0.hdslb.com/bfs/article/5b9ee8185dc66878348afab401fea6e4353403349.png",
+    "https://i0.hdslb.com/bfs/article/13dced0936b59d2038eb52809177a673353403349.png",
+    "https://i0.hdslb.com/bfs/article/669a3cd96be70c5898d127d00cad28d7353403349.png",
+    "https://i0.hdslb.com/bfs/article/0fc3ac713c798c4d5052c941d33f28a8353403349.png",
+    "https://i0.hdslb.com/bfs/article/98f544b721df994fae8450bd9818e320353403349.png"
+]
+
 
 function PostForm({
     isVisible,
@@ -388,12 +416,12 @@ function PostForm({
                                         name="image-input-method"
                                         type="radio"
                                         value="url"
-                                        checked={imageInputMethod === 'url'}
-                                        onChange={() => handleMethodChange('url')}
+                                        checked={imageInputMethod === 'stick'}
+                                        onChange={() => handleMethodChange('stick')}
                                         className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
                                     />
                                     <label htmlFor="method-url" className="ml-2 block text-sm text-gray-900 cursor-pointer">
-                                        通过URL添加图片
+                                        添加表情
                                     </label>
                                 </div>
                             </div>

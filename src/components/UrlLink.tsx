@@ -13,6 +13,8 @@ interface QuoteLinkProps {
 const QuoteLink: React.FC<QuoteLinkProps> = ({ text, url }) => {
     return <a
         href={url}
+        target='_blank'
+        rel='noopener noreferrer'
         className="text-blue-600 hover:text-blue-800 hover:underline font-medium quote-link"
         style={{ color: '#0000aa' }}
     >

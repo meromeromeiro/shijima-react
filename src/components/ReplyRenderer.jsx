@@ -111,7 +111,7 @@ const ReplyRenderer = ({ text, tid }) => {
             // 更好的做法是让父级的 div 来处理行分隔，或者为每个 line 返回一个包裹的 div。
             // 考虑到你后续返回了 div，这里直接返回 <br> 可能会导致额外的 div 嵌套。
             // 让我们保持一致性，返回一个空 div 或直接依赖 whitespace-pre-wrap。
-            return <div key={index}></div>; // 返回一个空的 div 确保每行都有一个容器
+            return <br key={index}></br>; // 返回一个空的 div 确保每行都有一个容器
         }
 
         // NEW RULE: @-prefixed lines
