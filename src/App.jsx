@@ -36,7 +36,7 @@ function App() {
     setRefresh(prev => prev + 1)
   }
 
-  return <div className='bg-green h-auto w-screen'>
+  return <div className='bg-green h-auto w-auto'>
     <Navbar onToggleOffCanvas={() => { setMenuIsOpen(true) }} title={title} onTogglePostForm={() => { setPostformIsOpen(true) }} />
 
     <Threads refresh={refresh} />

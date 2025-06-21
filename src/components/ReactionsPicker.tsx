@@ -268,7 +268,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
         <div className="pt-1 pb-1 w-full flex items-center p-1 rounded-lg text-sm">
             {/* 加号按钮 */}
             <button
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 p-1 rounded-full w-5 h-5 flex items-center justify-center text-md font-bold cursor-pointer transition-colors duration-200 shadow-sm mr-1"
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700 p-1 rounded-full w-5 h-5 flex items-center justify-center text-md font-bold cursor-pointer transition-colors duration-200 shadow-sm mr-1 self-start"
                 onClick={handlePlusClick}
                 aria-label="添加反应"
                 disabled={loading}
@@ -345,7 +345,7 @@ function ReactionsPicker({ tid, apiBaseUrl = '/api/v2' }) {
             )}
 
             {/* 右侧已设置的颜文字列表 */}
-            <div className="flex-grow flex items-center space-x-1 overflow-x-auto py-0.5 hide-scrollbar">
+            <div className="flex-grow flex flex-wrap items-center gap-x-1 py-0.5">
                 {loading && <span className="text-gray-500 text-xs ml-1">加载中...</span>}
                 {error && <span className="text-red-500 text-xs ml-1">{error}</span>}
 
