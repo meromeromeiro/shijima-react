@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Thread } from '../services/type';
-import ReplyRenderer from './ReplyRenderer';
+import ReplyRenderer from './markdown/ReplyRenderer';
 import ThreadImage from './ThreadImage.tsx'
 import { formatUtcToLocalReadableTS } from '../services/utils.ts'
 import LazyLoadPlaceholder from './LazyLoadPlaceholder.tsx';
