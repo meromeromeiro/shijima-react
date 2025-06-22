@@ -2,7 +2,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Thread } from '../services/type';
 import ReplyItem from './ReplyItem.tsx';
-import ReplyRenderer from './markdown/ReplyRenderer';
+import ReplyRenderer from './ReplyRenderer';
 import ThreadImage from './ThreadImage.tsx'
 import { formatUtcToLocalReadableTS } from '../services/utils.ts'
 import ReactionsPicker from './ReactionsPicker.tsx'; // 根据你的文件路径调整

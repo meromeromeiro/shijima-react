@@ -3,13 +3,17 @@ import React, { Fragment } from 'react';
 import QuoteLink from './QuoteLink.tsx'; // 确保路径正确
 import Mention from './Mention.tsx';     // 确保路径正确
 import UrlLink from './UrlLink.tsx';     // 确保路径正确
+import CodeBlock from './markdown/CodeBlock'; // 确保路径正确
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'; // 用于 GitHub 风格的 Markdown
+import { remarkCustomInlineParser } from './markdown/remarkCustomInlineParser'; // 我们的自定义插件
 
 // 将 Regexes 定义在组件外部，避免每次渲染都重新创建，提高性能
 const QUOTE_LINK_REGEX = /(No\.(\d+))|(>>?(\d+))/g;
 // 修正 Markdown link regex，[.] 只匹配一个点，应为 [^\]]+
 // 同时，这个 regex 通常用于匹配整行，而不是内联的。如果真的需要内联，需要更复杂的逻辑。
 // 在本例中，它仍被当作一个行级规则处理。
-const MARKDOWN_LINK_REGEX = /\s*\[(.+)\]\((.+)\)\s*/; 
+const MARKDOWN_LINK_REGEX = /\s*\[(.+?)\]\((.+?)\)\s*/g; 
 const URL_LINK_REGEX = /(https?):\/\/([a-zA-Z0-9.-]+)(?::\d+)?(?:\/[\w\d.%~_/-]*)*\/?(\?[^\s#]*)?(#[^\s]*)?/g;
 
 /**
@@ -41,6 +45,26 @@ const parseInlineContent = (lineContent) => {
       }
     },
     {
+      type: 'markdownLink',
+      regex: MARKDOWN_LINK_REGEX,
+      handler: (match) => {
+        const fullMatchText = match[0];
+        const linkText = match[1];
+        const linkUrl = match[2];
+        return (
+          <a
+            key={`markdown-link-${match.index}-${fullMatchText}`}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
+          >
+            {linkText}
+          </a>
+        );
+      }
+    },
+    {
       type: 'url',
       regex: URL_LINK_REGEX,
       handler: (match) => {
@@ -58,7 +82,7 @@ const parseInlineContent = (lineContent) => {
     for (const processor of processors) {
       // 必须重置每个正则的 lastIndex 到当前行的 lastIndex
       // 这样每个正则都能从当前未解析的位置开始搜索
-      processor.regex.lastIndex = lastIndex; 
+      processor.regex.lastIndex = lastIndex;
       const currentMatch = processor.regex.exec(lineContent);
 
       if (currentMatch) {
@@ -100,109 +124,129 @@ const ReplyRenderer = ({ text, tid }) => {
 
   const lines = text.split('\n');
 
-  return (
-    <div className="parsed-reply-content whitespace-pre-wrap break-words text-sm text-gray-700">
-      {lines.map((line, index) => {
+  const fragments = []
+  const linesToProcess = [];
 
-        if (line.trim() === "") {
-            // 为空行添加 <br> 标签，但要确保它在DOM结构中不会导致多余的div
-            // 或者，如果只是为了视觉换行，可以返回 null 让父级的 whitespace-pre-wrap 处理
-            // 这里为了明确的空行，使用 <br> 是可以的，但通常 <br> 应该放在文本流中
-            // 更好的做法是让父级的 div 来处理行分隔，或者为每个 line 返回一个包裹的 div。
-            // 考虑到你后续返回了 div，这里直接返回 <br> 可能会导致额外的 div 嵌套。
-            // 让我们保持一致性，返回一个空 div 或直接依赖 whitespace-pre-wrap。
-            return <br key={index}></br>; // 返回一个空的 div 确保每行都有一个容器
+  lines.forEach((line, index) => {
+    if (line.trim() === "") {
+      // 空行直接添加一个 <br> 标签
+      fragments.push(<br key={`br-${index}`} />);
+    } else if (linesToProcess.length === 0 && !line.startsWith('```')) {
+      if (line.startsWith('@')) {
+        const firstSpaceIndex = line.indexOf(' ');
+        let mentionPrefix = line;
+        let contentAfterMention = '';
+
+        if (firstSpaceIndex !== -1) {
+          mentionPrefix = line.substring(0, firstSpaceIndex);
+          contentAfterMention = line.substring(firstSpaceIndex + 1);
         }
 
-        // NEW RULE: @-prefixed lines
-        if (line.startsWith('@')) {
-          const firstSpaceIndex = line.indexOf(' ');
-          let mentionPrefix = line; 
-          let contentAfterMention = '';
+        // 使用合并后的解析函数
+        const parsedContentSegments = parseInlineContent(contentAfterMention);
 
-          if (firstSpaceIndex !== -1) {
-            mentionPrefix = line.substring(0, firstSpaceIndex); 
-            contentAfterMention = line.substring(firstSpaceIndex + 1); 
-          } 
-          
-          // 使用合并后的解析函数
-          const parsedContentSegments = parseInlineContent(contentAfterMention);
+        fragments.push(
+          <React.Fragment key={index}>
+            <div className="mention-line">
+              <span className="mention-prefix font-medium text-blue-500 mr-2">{mentionPrefix}</span>
+              {parsedContentSegments.map((segment, i) => (
+                <React.Fragment key={`mention-seg-${i}`}>{segment}</React.Fragment>
+              ))}
+            </div>
+            {/* Mentions 的处理逻辑保留，但要注意它是否会重复显示 contentAfterMention */}
+            {/* 如果 Mention 组件本身也要解析 query，则需要调整 Mention 组件 */}
+            {/* 如果 Mention 只是展示一个触发器，而内容显示在上面，则目前逻辑是合理的 */}
+            <Mention bot={mentionPrefix} tid={tid} query={contentAfterMention} />
+          </React.Fragment>
+        );
+      }
 
-          return (
-            <React.Fragment key={index}>
-              <div className="mention-line">
-                <span className="mention-prefix font-medium text-blue-500 mr-2">{mentionPrefix}</span>
-                {parsedContentSegments.map((segment, i) => (
-                  <React.Fragment key={`mention-seg-${i}`}>{segment}</React.Fragment>
-                ))}
-              </div>
-              {/* Mentions 的处理逻辑保留，但要注意它是否会重复显示 contentAfterMention */}
-              {/* 如果 Mention 组件本身也要解析 query，则需要调整 Mention 组件 */}
-              {/* 如果 Mention 只是展示一个触发器，而内容显示在上面，则目前逻辑是合理的 */}
-              <Mention bot={mentionPrefix} tid={tid} query={contentAfterMention} />
-            </React.Fragment>
+      // Rule 1: Markdown H2-style Link (## [Text](URL))
+      if (line.startsWith('##')) {
+        const contentAfterMarker = line.substring(2); // Remove "##"
+        // 使用外部定义的正则
+        MARKDOWN_LINK_REGEX.lastIndex = 0;
+        const linkMatch = contentAfterMarker.match(MARKDOWN_LINK_REGEX);
+
+        if (linkMatch) {
+          const linkText = linkMatch[1];
+          const linkUrl = linkMatch[2];
+          fragments.push(
+            <a
+              key={index}
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
+            >
+              {linkText}
+            </a>
           );
         }
+      }
 
-        // Rule 1: Markdown H2-style Link (## [Text](URL))
-        if (line.startsWith('##')) {
-          const contentAfterMarker = line.substring(2); // Remove "##"
-          // 使用外部定义的正则
-          MARKDOWN_LINK_REGEX.lastIndex = 0;
-          const linkMatch = contentAfterMarker.match(MARKDOWN_LINK_REGEX);
-          
-          if (linkMatch) {
-            const linkText = linkMatch[1];
-            const linkUrl = linkMatch[2];
-            return (
-              <a
-                key={index}
-                href={linkUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
-              >
-                {linkText}
-              </a>
-            );
-          }
-        }
+      // Rule 2: Greentext and inline QuoteLinks / UrlLinks
+      const isGreenText = line.startsWith('>') || line.startsWith('＞') || line.startsWith('》');
+      let textToParseInline = line; // 变量名更通用
+      let greentextPrefixElement = null;
 
-        // Rule 2: Greentext and inline QuoteLinks / UrlLinks
-        const isGreenText = line.startsWith('>') || line.startsWith('＞') || line.startsWith('》');
-        let textToParseInline = line; // 变量名更通用
-        let greentextPrefixElement = null;
+      if (isGreenText) {
+        greentextPrefixElement = <span className="greentext-prefix"> &gt; </span>;
+        textToParseInline = line.substring(1); // Remove the leading '>' for inline parsing
+      }
 
-        if (isGreenText) {
-          greentextPrefixElement = <span className="greentext-prefix"> &gt; </span>;
-          textToParseInline = line.substring(1); // Remove the leading '>' for inline parsing
-        }
+      // 使用合并后的解析函数处理行内容
+      const parsedSegments = parseInlineContent(textToParseInline);
 
-        // 使用合并后的解析函数处理行内容
-        const parsedSegments = parseInlineContent(textToParseInline);
-
-        // 如果该行只是一个空的 greentext (例如 ">")，确保渲染它
-        if (isGreenText && parsedSegments.length === 1 && parsedSegments[0] === '') {
-            return (
-                <div key={index} className="text-green-600 greentext-line" style={{ color: '#00aa00' }}>
-                    {greentextPrefixElement}
-                </div>
-            );
-        }
-
-        return (
-          <div
-            key={index}
-            className={`${isGreenText ? 'text-green-600 greentext-line' : ''}`}
-            style={isGreenText ? { color: '#00aa00' } : {}}
-          >
-            {isGreenText && greentextPrefixElement}
-            {parsedSegments.map((segment, i) => (
-              <React.Fragment key={`seg-${i}`}>{segment}</React.Fragment>
-            ))}
+      // 如果该行只是一个空的 greentext (例如 ">")，确保渲染它
+      if (isGreenText && parsedSegments.length === 1 && parsedSegments[0] === '') {
+        fragments.push(
+          <div key={index} className="text-green-600 greentext-line" style={{ color: '#00aa00' }}>
+            {greentextPrefixElement}
           </div>
         );
-      })}
+      }
+
+      fragments.push(
+        <div
+          key={index}
+          className={`${isGreenText ? 'text-green-600 greentext-line' : ''}`}
+          style={isGreenText ? { color: '#00aa00' } : {}}
+        >
+          {isGreenText && greentextPrefixElement}
+          {parsedSegments.map((segment, i) => (
+            <React.Fragment key={`seg-${i}`}>{segment}</React.Fragment>
+          ))}
+        </div>
+      );
+    } else {
+      linesToProcess.push(line);
+      if (line.trim().startsWith('```') && linesToProcess.length > 1) {
+        // 如果遇到代码块的结束标记，处理之前的行
+        const codeBlockContent = linesToProcess.join('\n');
+        fragments.push(
+          <ReactMarkdown
+            key={`code-${index}`}
+            remarkPlugins={[remarkGfm, remarkCustomInlineParser]}
+            components={{ code: CodeBlock.code }} // Use standard components for general markdown blocks
+          //   className="markdown-content"
+          >
+            {codeBlockContent}
+          </ReactMarkdown>
+        );
+
+        linesToProcess.length = 0; // 清空已处理的行
+      }
+    }
+  });
+
+  linesToProcess.forEach((line) =>
+    fragments.push(<div>{line}</div>)
+  )
+
+  return (
+    <div className="parsed-reply-content whitespace-pre-wrap break-words text-sm text-gray-700">
+      {fragments}
     </div>
   );
 };
