@@ -111,6 +111,8 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
 
     const [index, setIndex] = useState(0);
     const [onloaded, setOnloaded] = useState(false);
+    const [videoError, setVideoError] = useState(false);
+    const [videoClicked, setVideoClicked] = useState(false);
 
     const hrefUrl = useMemo(() => getHrefUrl(imageUrl), [imageUrl]);
     const tryList = useMemo(() => getTryList(imageUrl), [imageUrl]);
@@ -125,7 +127,8 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
             // getHrefUrl should ideally always return a full URL or a known placeholder.
             const pathname = url.pathname.toLowerCase(); // Get a lowercase version of the path part
 
-            return pathname.endsWith(".gif") ||
+            return pathname.endsWith(".m4a") ||
+                pathname.endsWith(".mp3") ||
                 pathname.endsWith(".webm") ||
                 pathname.endsWith(".mp4");
         } catch (error) {
@@ -138,7 +141,8 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
             // Fallback for basic check if URL parsing fails (less robust but better than nothing)
             // This tries to strip query parameters and hash before checking.
             const cleanUrl = hrefUrl.split('?')[0].split('#')[0].toLowerCase();
-            return cleanUrl.endsWith(".gif") ||
+            return cleanUrl.endsWith(".m4a") ||
+                cleanUrl.endsWith(".mp3") ||
                 cleanUrl.endsWith(".webm") ||
                 cleanUrl.endsWith(".mp4");
         }
@@ -158,6 +162,23 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
         }
         // If it's already the last image (favicon), do nothing more.
     };
+
+    if (shouldShowPlayButton && !videoError) return (
+        <video className={videoClicked ? "max-w-auto max-h-screen " : "max-w-64 max-h-40 " + imageClassName}
+            controls
+            muted
+            onPlay={() => { setVideoClicked(true) }}
+            onError={() => { setVideoError(true) }}
+            onLoadedData={() => { setOnloaded(true) }}
+            poster={imageUrl} // Use the current image as the poster
+            style={{ width: "auto", height: "auto" }} // Ensure it fills the container
+        >
+            <source src={imageUrl} type="video/mp4" />
+            <source src={imageUrl} type="video/webm" />
+            <source src={imageUrl} type="audio/mpeg" />
+            <source src={imageUrl} type="video/m4a" />
+        </video>
+    )
 
     return (
         <PhotoView key={currentImageSrc} src={currentImageSrc}>

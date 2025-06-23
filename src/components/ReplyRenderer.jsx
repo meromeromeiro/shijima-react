@@ -13,7 +13,7 @@ const QUOTE_LINK_REGEX = /(No\.(\d+))|(>>?(\d+))/g;
 // 修正 Markdown link regex，[.] 只匹配一个点，应为 [^\]]+
 // 同时，这个 regex 通常用于匹配整行，而不是内联的。如果真的需要内联，需要更复杂的逻辑。
 // 在本例中，它仍被当作一个行级规则处理。
-const MARKDOWN_LINK_REGEX = /\s*\[(.+?)\]\((.+?)\)\s*/g; 
+const MARKDOWN_LINK_REGEX = /\s*\[(.+?)\]\((.+?)\)\s*/g;
 const URL_LINK_REGEX = /(https?):\/\/([a-zA-Z0-9.-]+)(?::\d+)?(?:\/[\w\d.%~_/-]*)*\/?(\?[^\s#]*)?(#[^\s]*)?/g;
 
 /**
@@ -159,31 +159,33 @@ const ReplyRenderer = ({ text, tid }) => {
             <Mention bot={mentionPrefix} tid={tid} query={contentAfterMention} />
           </React.Fragment>
         );
+        return
       }
 
       // Rule 1: Markdown H2-style Link (## [Text](URL))
-      if (line.startsWith('##')) {
-        const contentAfterMarker = line.substring(2); // Remove "##"
-        // 使用外部定义的正则
-        MARKDOWN_LINK_REGEX.lastIndex = 0;
-        const linkMatch = contentAfterMarker.match(MARKDOWN_LINK_REGEX);
+      // if (line.startsWith('##')) {
+      //   const contentAfterMarker = line.substring(2); // Remove "##"
+      //   // 使用外部定义的正则
+      //   MARKDOWN_LINK_REGEX.lastIndex = 0;
+      //   const linkMatch = contentAfterMarker.match(MARKDOWN_LINK_REGEX);
 
-        if (linkMatch) {
-          const linkText = linkMatch[1];
-          const linkUrl = linkMatch[2];
-          fragments.push(
-            <a
-              key={index}
-              href={linkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
-            >
-              {linkText}
-            </a>
-          );
-        }
-      }
+      //   if (linkMatch) {
+      //     const linkText = linkMatch[1];
+      //     const linkUrl = linkMatch[2];
+      //     fragments.push(
+      //       <a
+      //         key={index}
+      //         href={linkUrl}
+      //         target="_blank"
+      //         rel="noopener noreferrer"
+      //         className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
+      //       >
+      //         {linkText}
+      //       </a>
+      //     );
+      //     return 
+      //   }
+      // }
 
       // Rule 2: Greentext and inline QuoteLinks / UrlLinks
       const isGreenText = line.startsWith('>') || line.startsWith('＞') || line.startsWith('》');
