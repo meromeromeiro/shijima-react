@@ -13,6 +13,7 @@ const QUOTE_LINK_REGEX = /(No\.(\d+))|(>>?(\d+))/g;
 // 修正 Markdown link regex，[.] 只匹配一个点，应为 [^\]]+
 // 同时，这个 regex 通常用于匹配整行，而不是内联的。如果真的需要内联，需要更复杂的逻辑。
 // 在本例中，它仍被当作一个行级规则处理。
+const MARKDOWN_CODE_REGEX = /`(.*?)`/g;
 const MARKDOWN_LINK_REGEX = /\s*\[(.+?)\]\((.+?)\)\s*/g;
 const URL_LINK_REGEX = /(https?):\/\/([a-zA-Z0-9.-]+)(?::\d+)?(?:\/[\w\d.%~_/-]*)*\/?(\?[^\s#]*)?(#[^\s]*)?/g;
 
@@ -42,6 +43,39 @@ const parseInlineContent = (lineContent) => {
           type = 'ref';
         }
         return <QuoteLink key={`quote-${match.index}-${fullMatchText}`} text={fullMatchText} number={number} type={type} />;
+      }
+    },
+    {
+      type: 'markdownCode',
+      regex: MARKDOWN_CODE_REGEX,
+      handler: (match) => {
+        // const fullMatchText = match[0];
+        const codeText = match[1];
+        return (
+          <span
+            // remarkPlugins={[remarkGfm, remarkCustomInlineParser]}
+            // components={{ code: CodeBlock.code }} // Use standard components for general markdown blocks
+            style={{
+              color: 'rgb(248, 248, 242)',
+              backgroundColor: 'rgb(39, 40, 34)', // 注意属性名改为驼峰式
+              fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace', // 引号需保留
+              fontSize: '1em',
+              textAlign: 'left',
+              whiteSpace: 'pre',
+              wordSpacing: 'normal',
+              wordBreak: 'normal',
+              overflowWrap: 'normal',
+              padding: '4px',
+              tabSize: 4, // 同上
+              hyphens: 'none',
+              overflow: 'auto',
+              borderRadius: '0.3em'
+            }}
+          >
+            {codeText}
+          </span>
+
+        );
       }
     },
     {
