@@ -47,7 +47,7 @@ function App() {
     <PhotoProvider>
 
       <Menu isOpen={menuIsOpen} onClose={() => { setMenuIsOpen(false) }} onSelectBoard={onSelectBoard}></Menu>
-      <Form isVisible={postFormIsOpen} title={board.name} onClose={() => { setPostformIsOpen(false) }} onPostSuccess={onPostSuccess} />
+      <Form isVisible={postFormIsOpen} title={board.name} onClose={() => { /*setPostformIsOpen(false)*/ }} onPostSuccess={onPostSuccess} />
     </PhotoProvider>
 
   </div>

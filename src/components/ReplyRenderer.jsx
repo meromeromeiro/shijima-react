@@ -13,7 +13,7 @@ const QUOTE_LINK_REGEX = /(No\.(\d+))|(>>?(\d+))/g;
 // 修正 Markdown link regex，[.] 只匹配一个点，应为 [^\]]+
 // 同时，这个 regex 通常用于匹配整行，而不是内联的。如果真的需要内联，需要更复杂的逻辑。
 // 在本例中，它仍被当作一个行级规则处理。
-const MARKDOWN_CODE_REGEX = /`(.*?)`/g;
+const EXTENDED_CODE_CHARS_REGEX = /`([\s()[\]{}<>:;'"=+\-*/\\,.?!@#$%^&|~`\w\d]*?)`/g;
 const MARKDOWN_LINK_REGEX = /\s*\[(.+?)\]\((.+?)\)\s*/g;
 const URL_LINK_REGEX = /(https?):\/\/([a-zA-Z0-9.-]+)(?::\d+)?(?:\/[\w\d.%~_/-]*)*\/?(\?[^\s#]*)?(#[^\s]*)?/g;
 
@@ -47,7 +47,7 @@ const parseInlineContent = (lineContent) => {
     },
     {
       type: 'markdownCode',
-      regex: MARKDOWN_CODE_REGEX,
+      regex: EXTENDED_CODE_CHARS_REGEX ,
       handler: (match) => {
         // const fullMatchText = match[0];
         const codeText = match[1];

@@ -21,7 +21,15 @@ function ThreadItem({ thread }: { thread: Thread }) {
   function onClickThread(e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) {
     e.preventDefault();
     setSearchParams(prev => {
-      prev.set("pn", "0")
+      prev.set("tid", String(thread.no));
+      return prev;
+    });
+  }
+
+  function onClickThreadLast(e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) {
+    e.preventDefault();
+    setSearchParams(prev => {
+      prev.set("pn", `${Math.floor(((thread.num! || 0) > 0 ? thread.num! : 0) / 30)}`)
       prev.set("tid", String(thread.no));
       return prev;
     });
@@ -50,7 +58,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
           </a>
           {/* Right side: Reply Button */}
           <button
-            onClick={onClickThread}
+            onClick={onClickThreadLast}
             className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2.5 py-1 rounded text-xs min-w-[50px] focus:outline-none focus:ring-1 focus:ring-gray-400 ml-auto shrink-0" // Changed ml-2 to ml-auto
           >
             回应
@@ -93,7 +101,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
               key={reply.no}
               reply={{ ...reply, isPo: reply.id === thread.id }}
               opNo={thread.no}
-              pn={Math.ceil(Math.abs(thread.num || 0) / 30)-1}
+              pn={Math.ceil(Math.abs(thread.num || 0) / 30) - 1}
             />
           ))}
         </div>

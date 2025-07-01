@@ -19,16 +19,22 @@ const previewUrl = (urlString: string): string => {
     try {
         const originalUrl = new URL(urlString);
         const originalHost = originalUrl.host;
+        if (originalHost === "proxy.moonchan.xyz") { return urlString; }
         if (originalHost !== "proxy.moonchan.xyz") {
-            originalUrl.searchParams.set('host', originalHost);
+            originalUrl.searchParams.set('proxy_host', originalHost);
+            // return urlString;
         }
-        originalUrl.pathname = "/api/v2/preview" + originalUrl.pathname
-        originalUrl.host = "moonchan.xyz"
+        // originalUrl.pathname = "/api/v2/preview" + originalUrl.pathname;
+        originalUrl.host = "proxy.moonchan.xyz";
 
-        if (["i.pximg.net"].includes(originalHost)) originalUrl.searchParams.set('proxy_referer', "https://pixiv.net");
+        if (["i.pximg.net"].includes(originalHost)) originalUrl.searchParams.set('proxy_referer', "https://pixiv.net/");
         else if (["sinaimg.cn"].includes(parseRootDomain(originalHost))) originalUrl.searchParams.set('proxy_referer', "https://weibo.com/");
+        else if (["toto.im"].includes(parseRootDomain(originalHost))) {
+            originalUrl.searchParams.set('proxy_host', "wx1.sinaimg.cn");
+            originalUrl.searchParams.set('proxy_referer', "https://weibo.com/");
+        }
 
-        return originalUrl.href
+        return originalUrl.href;
     } catch (e) {
         console.error("Error in previewUrl with:", urlString, e);
         return "https://moonchan.xyz/favicon.ico"; // Fallback on error
@@ -74,7 +80,7 @@ function getTryList(urlString: string): string[] {
     try {
         const originalUrl = new URL(urlString);
 
-        if (["e-hentai.org", "exhentai.org", "ehwb.moonchan.xyz", "ex.moonchan.xyz"].includes(originalUrl.host)) {
+        if (["e-hentai.org", "exhentai.org", "ehwv.moonchan.xyz", "ex.moonchan.xyz"].includes(originalUrl.host)) {
             return [validEhentaiUrl(urlString), "https://moonchan.xyz/favicon.ico"]
         }
     } catch (e) {
@@ -157,6 +163,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
 
 
     const handleImageError = () => {
+        // console.log(index, tryList);
         if (index < tryList.length) {
             setIndex(prev => prev + 1);
         }
