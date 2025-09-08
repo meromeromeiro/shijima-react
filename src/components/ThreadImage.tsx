@@ -20,7 +20,7 @@ const previewUrl = (urlString: string): string => {
         const originalUrl = new URL(urlString);
         const originalHost = originalUrl.host;
         if (originalHost === "proxy.moonchan.xyz") { return urlString; }
-        else if (["pbs.twimg.com"].includes(originalHost))  {
+        else if (["pbs.twimg.com"].includes(originalHost)) {
             originalUrl.host = "twimg.moonchan.xyz";
             return originalUrl.href;
         }
@@ -89,6 +89,7 @@ function getTryList(urlString: string): string[] {
         console.log("Invalid URL in getTryList:", urlString, e);
         return ["https://moonchan.xyz/favicon.ico"];
     }
+    
     return [urlString, previewUrl(urlString), "https://moonchan.xyz/favicon.ico"]
 }
 
@@ -202,6 +203,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
             {/* 240620 修改图片显示方式 */}
             <img
                 src={currentImageSrc}
+                referrerPolicy={(currentImageSrc.startsWith("https://proxy.moonchan") || currentImageSrc.startsWith("https://upload.moonchan")) ? "" : 'no-referrer'}
                 alt={altText}
                 className={`${defaultImageClasses} ${imageClassName}`.trim()}
                 loading="lazy"

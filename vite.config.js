@@ -1,21 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import legacy from '@vitejs/plugin-legacy'
+// import legacy from '@vitejs/plugin-legacy'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    legacy({
-      targets: ['ie >= 11','> 0.5%'],
-      modernPolyfills: [
-        'es.array.iterator',
-        'es.promise',
-        'es.object.assign'
-      ],
-      renderLegacyChunks: true,
-      polyfills: true
-    }),
+    // legacy({
+    //   targets: ['ie >= 11','> 0.5%'],
+    //   modernPolyfills: [
+    //     'es.array.iterator',
+    //     'es.promise',
+    //     'es.object.assign'
+    //   ],
+    //   renderLegacyChunks: true,
+    //   polyfills: true
+    // }),
 
     react(),
     tailwindcss(),

@@ -57,7 +57,6 @@ const parseInlineContent = (lineContent) => {
               color: 'rgb(248, 248, 242)',
               backgroundColor: 'rgb(39, 40, 34)',
               fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-              fontSize: '1em',
               textAlign: 'left',
               whiteSpace: 'nowrap', // 改为nowrap，确保不换行
               wordSpacing: 'normal',
@@ -68,7 +67,7 @@ const parseInlineContent = (lineContent) => {
               hyphens: 'none',
               borderRadius: '0.3em',
               maxWidth: '100%', // 最大宽度为父容器的100%
-              display: 'inline-block', // 关键：内联块，不会单独一行
+              // display: 'inline-block', // 关键：内联块，不会单独一行
               overflowX: 'auto', // 横向滚动
               overflowY: 'hidden', // 垂直方向隐藏
               boxSizing: 'border-box'

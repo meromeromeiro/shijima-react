@@ -103,6 +103,12 @@ export const fetchThreadDetails = async (threadId, page = 1) => {
 };
 
 export const getBoardStructure = async () => {
+    const response = await fetch(`/boards.json`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
     // This is a mock. Replace with actual API if available.
     return [
         {
