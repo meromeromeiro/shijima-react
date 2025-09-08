@@ -252,7 +252,7 @@ function PostForm({
                 }
 
                 setTimeout(() => {
-                    onClose();
+                    // onClose();
                     setSuccessMessage(null); // Clear message before closing, or it might persist if form reopens quickly
                 }, 1500);
 
@@ -459,7 +459,7 @@ function PostForm({
                         {/* Action Buttons */}
                         <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200 mt-4">
                             <button type="button" onClick={onClose} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">取消</button>
-                            <button type="submit" disabled={isSubmitting || (!formData.content?.trim() && !imageURL)} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+                            <button type="submit" disabled={isSubmitting || (!formData.content?.trim() && !imageURL || imageURL === "https://media.tenor.com/WX_LDjYUrMsAAAAm/loading.webp")} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
                                 {isSubmitting ? '提交中...' : '发布'}
                             </button>
                         </div>

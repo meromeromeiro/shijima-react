@@ -29,7 +29,7 @@ function ThreadItem({ thread }: { thread: Thread }) {
   function onClickThreadLast(e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) {
     e.preventDefault();
     setSearchParams(prev => {
-      prev.set("pn", `${Math.floor(((thread.num! || 0) > 0 ? thread.num! : 0) / 30)}`)
+      prev.set("pn", `${Math.floor((((thread.num! - 1 || 0) > 0) ? thread.num! - 1 : 0) / 30)}`)
       prev.set("tid", String(thread.no));
       return prev;
     });

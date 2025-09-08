@@ -20,11 +20,13 @@ const previewUrl = (urlString: string): string => {
         const originalUrl = new URL(urlString);
         const originalHost = originalUrl.host;
         if (originalHost === "proxy.moonchan.xyz") { return urlString; }
+        else if (["pbs.twimg.com"].includes(originalHost))  {
+            originalUrl.host = "twimg.moonchan.xyz";
+            return originalUrl.href;
+        }
         if (originalHost !== "proxy.moonchan.xyz") {
             originalUrl.searchParams.set('proxy_host', originalHost);
-            // return urlString;
         }
-        // originalUrl.pathname = "/api/v2/preview" + originalUrl.pathname;
         originalUrl.host = "proxy.moonchan.xyz";
 
         if (["i.pximg.net"].includes(originalHost)) originalUrl.searchParams.set('proxy_referer', "https://pixiv.net/");

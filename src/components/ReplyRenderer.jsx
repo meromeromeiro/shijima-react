@@ -47,34 +47,35 @@ const parseInlineContent = (lineContent) => {
     },
     {
       type: 'markdownCode',
-      regex: EXTENDED_CODE_CHARS_REGEX ,
+      regex: EXTENDED_CODE_CHARS_REGEX,
       handler: (match) => {
         // const fullMatchText = match[0];
         const codeText = match[1];
         return (
           <span
-            // remarkPlugins={[remarkGfm, remarkCustomInlineParser]}
-            // components={{ code: CodeBlock.code }} // Use standard components for general markdown blocks
             style={{
               color: 'rgb(248, 248, 242)',
-              backgroundColor: 'rgb(39, 40, 34)', // 注意属性名改为驼峰式
-              fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace', // 引号需保留
+              backgroundColor: 'rgb(39, 40, 34)',
+              fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
               fontSize: '1em',
               textAlign: 'left',
-              whiteSpace: 'pre',
+              whiteSpace: 'nowrap', // 改为nowrap，确保不换行
               wordSpacing: 'normal',
               wordBreak: 'normal',
               overflowWrap: 'normal',
               padding: '4px',
-              tabSize: 4, // 同上
+              tabSize: 4,
               hyphens: 'none',
-              overflow: 'auto',
-              borderRadius: '0.3em'
+              borderRadius: '0.3em',
+              maxWidth: '100%', // 最大宽度为父容器的100%
+              display: 'inline-block', // 关键：内联块，不会单独一行
+              overflowX: 'auto', // 横向滚动
+              overflowY: 'hidden', // 垂直方向隐藏
+              boxSizing: 'border-box'
             }}
           >
             {codeText}
           </span>
-
         );
       }
     },
