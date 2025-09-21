@@ -62,7 +62,7 @@ const parseItemData = (item) => ({
 } as Thread);
 
 
-export const getThread = async(tid = "0", page = "99999") => {
+export const getThread = async(tid = 0, page = 99999) => {
     const response =  await fetch(`${API_BASE_URL}?tid=${tid}&pn=${page}`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -71,9 +71,18 @@ export const getThread = async(tid = "0", page = "99999") => {
     return [data].map(parseItemData)
 }
 
-export const getThreads = async (bid = "1", tid = "0", page = "0") => {
+export const getThreads = async (bid = 1, tid = 0, page = 0) => {
     // API uses 0-indexed pages for pn, UI usually uses 1-indexed.
     const response = await fetch(`${API_BASE_URL}?bid=${bid}&tid=${tid}&pn=${page}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return (data as any[] || []).map(parseItemData);
+}
+
+export const getRecentlyReactedThreads = async () => {
+    const response = await fetch(`${API_BASE_URL}new_reactions`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }

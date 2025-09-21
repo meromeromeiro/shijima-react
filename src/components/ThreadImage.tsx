@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { getRandomIntInclusive, validEhentaiUrl, parseRootDomain } from "../services/utils"
 import { PhotoView } from 'react-photo-view';
+import ReactHlsPlayer from "react-hls-player";
 
 interface ThreadImageProps {
     /** The URL of the image. If not provided, the component renders nothing. */
@@ -89,7 +90,7 @@ function getTryList(urlString: string): string[] {
         console.log("Invalid URL in getTryList:", urlString, e);
         return ["https://moonchan.xyz/favicon.ico"];
     }
-    
+
     return [urlString, previewUrl(urlString), "https://moonchan.xyz/favicon.ico"]
 }
 
@@ -126,9 +127,9 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
     const hrefUrl = useMemo(() => getHrefUrl(imageUrl), [imageUrl]);
     const tryList = useMemo(() => getTryList(imageUrl), [imageUrl]);
 
-    const shouldShowPlayButton = useMemo(() => {
+    const url = useMemo(() => {
         if (!hrefUrl || hrefUrl === "#") { // Handle cases where hrefUrl might be a placeholder
-            return false;
+            return hrefUrl;
         }
         try {
             // Parse the hrefUrl to correctly access its pathname
@@ -136,10 +137,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
             // getHrefUrl should ideally always return a full URL or a known placeholder.
             const pathname = url.pathname.toLowerCase(); // Get a lowercase version of the path part
 
-            return pathname.endsWith(".m4a") ||
-                pathname.endsWith(".mp3") ||
-                pathname.endsWith(".webm") ||
-                pathname.endsWith(".mp4");
+            return pathname
         } catch (error) {
             // This might happen if hrefUrl is not a valid absolute URL
             // (e.g., a relative path, or malformed)
@@ -150,12 +148,16 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
             // Fallback for basic check if URL parsing fails (less robust but better than nothing)
             // This tries to strip query parameters and hash before checking.
             const cleanUrl = hrefUrl.split('?')[0].split('#')[0].toLowerCase();
-            return cleanUrl.endsWith(".m4a") ||
-                cleanUrl.endsWith(".mp3") ||
-                cleanUrl.endsWith(".webm") ||
-                cleanUrl.endsWith(".mp4");
+            return cleanUrl
         }
     }, [hrefUrl]);
+
+    const isPlayable = (url: string): boolean => {
+        return url.endsWith(".m4a") ||
+            url.endsWith(".mp3") ||
+            url.endsWith(".webm") ||
+            url.endsWith(".mp4");
+    }
 
     const defaultLinkClasses = "flex w-fit"; // w-fit might be an issue with relative parent for absolute child
     // Changed to inline-flex for better wrapping of content
@@ -173,7 +175,14 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
         // If it's already the last image (favicon), do nothing more.
     };
 
-    if (shouldShowPlayButton && !videoError) return (
+
+    if (url.endsWith("m3u8")) {
+        return <MyCustomComponent
+            src={hrefUrl}
+        />
+    }
+
+    if (isPlayable(url) && !videoError) return (
         <video className={videoClicked ? "max-w-auto max-h-screen " : "max-w-64 max-h-40 " + imageClassName}
             controls
             muted
@@ -182,6 +191,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
             onLoadedData={() => { setOnloaded(true) }}
             poster={imageUrl} // Use the current image as the poster
             style={{ width: "auto", height: "auto" }} // Ensure it fills the container
+            {...{ referrerPolicy: "no-referrer" } as any} // 使用类型断言
         >
             <source src={imageUrl} type="video/mp4" />
             <source src={imageUrl} type="video/webm" />
@@ -206,7 +216,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
                 referrerPolicy={(currentImageSrc.startsWith("https://proxy.moonchan") || currentImageSrc.startsWith("https://upload.moonchan")) ? "" : 'no-referrer'}
                 alt={altText}
                 className={`${defaultImageClasses} ${imageClassName}`.trim()}
-                loading="lazy"
+                // loading="lazy"
                 onError={handleImageError}
                 onLoad={() => { console.log(currentImageSrc); setOnloaded(true) }}
                 onLoadedData={() => { setOnloaded(true) }}
@@ -224,3 +234,49 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
 };
 
 export default ThreadImage;
+
+function MyCustomComponent({ src }: { src: string }) {
+    const playerRef = useRef<HTMLVideoElement>(null);
+
+    const [videoClicked, setVideoClicked] = useState(false);
+
+    // 使用 useCallback 缓存函数，确保 fireOnVideoStart 的引用在组件重新渲染时保持不变
+    const fireOnVideoStart = useCallback(() => {
+        console.log('Video started!');
+        // 你的视频开始播放后的逻辑
+    }, []); // 如果函数内部依赖了其他状态或prop，需将它们添加到依赖数组中
+
+    // useEffect(() => {
+    //     console.log(playerRef.current);
+
+    //     playerRef.current!.addEventListener('play', fireOnVideoStart);
+
+    //     return playerRef.current!.removeEventListener('play', fireOnVideoStart);
+    // }, []);
+
+    // useEffect(() => {
+    //     function fireOnVideoEnd() {
+    //         // Do some stuff when the video ends
+    //     }
+
+    //     playerRef.current?.addEventListener('ended', fireOnVideoEnd);
+
+    //     return playerRef.current?.removeEventListener('ended', fireOnVideoEnd);
+    // }, []);
+
+    return (
+        <div className={videoClicked ? "max-w-auto max-h-screen" : "max-w-64 max-h-40"}
+        // onClick={() => { setVideoClicked(true) }}
+        >
+            <ReactHlsPlayer
+                playerRef={playerRef as React.RefObject<HTMLVideoElement>}
+                autoPlay={false}
+                controls={true}
+                src={src}
+                width="auto"
+                height="auto"
+                onPlay={() => { setVideoClicked(true) }}
+            />
+        </div>
+    );
+}

@@ -2,14 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ThreadListDisplay from './components/ThreadListDisplay'; // Your provided component
-import { getThread, getThreads } from './services/api'; // Your API functions
+import { getRecentlyReactedThreads, getThread, getThreads } from './services/api'; // Your API functions
 import type { Thread } from "./services/type"
 import Pagination from './components/Pagination.tsx';
 import { setDocumentTitle } from './services/utils.ts';
 
 const ITEMS_PER_PAGE_THREAD = 30; // Standard items per page for threads/replies
 
-function Threads({ refresh }) {
+function Threads({ refresh = 0 }) {
     // const navigate = useNavigate();
     // const location = useLocation();
 
@@ -28,11 +28,22 @@ function Threads({ refresh }) {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        const bid = searchParams.get('bid') || "0";
-        const tid = searchParams.get('tid') || "0";
-        const page = searchParams.get('pn') || "0";
-        if (tid === bid) return; // 不可以这样。
-        if (tid === "0") {
+        
+        const bid = parseInt(searchParams.get('bid') || "0") || 0;
+        const tid = parseInt(searchParams.get('tid') || "0") || 0;
+        const page = parseInt(searchParams.get('pn') || "0") || 0;
+        console.log(tid, "/", bid)
+        if (tid === 0 && bid === -1) {
+            // recently reacted
+            setIsLoading(true);
+            getRecentlyReactedThreads().then(threads => {
+                // console.log(threads);
+                setData(threads);
+                setIsLoading(false)
+            }).catch(e => {
+                setError(true)
+            })
+        } else if (tid === 0 && bid > 0) {
             setIsLoading(true);
             getThreads(bid, tid, page).then(threads => {
                 // console.log(threads);
@@ -42,7 +53,7 @@ function Threads({ refresh }) {
                 setError(true)
             })
         }
-        else {
+        else if (tid !== 0) {
             setIsLoading(true);
             getThread(tid, page).then(threads => {
                 // console.log(threads);
@@ -52,6 +63,9 @@ function Threads({ refresh }) {
             }).catch(e => {
                 setError(true)
             })
+        } else { // bid <=0
+            setData([]);
+            console.log(tid, "//", bid)
         }
     }, [searchParams, refresh]);
 

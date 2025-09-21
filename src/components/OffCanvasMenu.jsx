@@ -12,6 +12,7 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
   const [addBoardError, setAddBoardError] = useState('');
 
   const functionalLinks = [
+    // { id: 'new-reaction', name: "新互动", action: 'newReaction' }, // 塞一个bid=0
     { id: 'add-board', name: "添加板块", action: 'addBoard' },
     { id: 'image-host', name: "图床", href: "https://upload.moonchan.xyz/" },
     { id: 'get-cookie', name: "获得Cookie", action: 'getCookie' },
@@ -36,6 +37,11 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
           setNewBoardIdInput('');
           setNewBoardTitleInput('');
           setAddBoardError(''); // 清空之前的错误信息
+          break;
+        case 'newReaction':
+          // e.preventDefault();
+          onSelectBoard(0);
+          onClose();
           break;
         default:
           break;
@@ -215,7 +221,7 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
                 value={newBoardIdInput}
                 onChange={(e) => setNewBoardIdInput(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="例如: 10001"
+                placeholder="例如: 1"
                 min="1"
               />
             </div>
@@ -227,7 +233,7 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
                 value={newBoardTitleInput}
                 onChange={(e) => setNewBoardTitleInput(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="例如: 我的自定义板块"
+                placeholder="例如: 闲聊"
               />
             </div>
             <div className="flex justify-end space-x-3">
