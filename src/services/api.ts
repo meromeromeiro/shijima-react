@@ -30,7 +30,7 @@ import { Board, Thread } from './type';
 // }
 
 const API_BASE_URL = '/api/v2/'; // Adjust if your Vite proxy or API URL is different
-const NULL_IMAGE_URL = 'https://moonchan.xyz/favicon.ico'
+const NULL_IMAGE_URL = '/favicon.ico'
 
 const constructImageUrl = (path: string) => {
     if (!path) return NULL_IMAGE_URL;

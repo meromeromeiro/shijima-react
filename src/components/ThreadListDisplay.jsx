@@ -49,7 +49,7 @@ function ThreadListDisplay({
                         */}
                         <img
                             className="w-48 sm:w-56 md:w-64 h-auto rounded-lg shadow-md"
-                            src="https://moonchan.xyz/api/v2/cover"
+                            src="/api/v2/cover"
                             alt="月島 しじま"
                         />
                     </div>

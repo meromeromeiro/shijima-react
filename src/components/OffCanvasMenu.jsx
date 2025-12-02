@@ -16,7 +16,7 @@ function OffCanvasMenu({ isOpen, onClose, boardStructure, onSelectBoard }) {
     { id: 'add-board', name: "添加板块", action: 'addBoard' },
     { id: 'image-host', name: "图床", href: "https://upload.moonchan.xyz/" },
     { id: 'get-cookie', name: "获得Cookie", action: 'getCookie' },
-    { id: 'self-delete', name: "自助删除", href: "https://moonchan.xyz/del.html" },
+    { id: 'self-delete', name: "自助删除", href: "/del.html" },
     { id: 'old-version', name: "返回旧版", path: "/old.html" }
   ];
 

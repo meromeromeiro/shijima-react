@@ -16,7 +16,7 @@ interface ThreadImageProps {
 
 
 const previewUrl = (urlString: string): string => {
-    if (!urlString) return "https://moonchan.xyz/favicon.ico"; // Handle empty urlString
+    if (!urlString) return "/favicon.ico"; // Handle empty urlString
     try {
         const originalUrl = new URL(urlString);
         const originalHost = originalUrl.host;
@@ -40,7 +40,7 @@ const previewUrl = (urlString: string): string => {
         return originalUrl.href;
     } catch (e) {
         console.error("Error in previewUrl with:", urlString, e);
-        return "https://moonchan.xyz/favicon.ico"; // Fallback on error
+        return "/favicon.ico"; // Fallback on error
     }
 }
 
@@ -79,19 +79,19 @@ function getHrefUrl(urlString: string): string {
 }
 
 function getTryList(urlString: string): string[] {
-    if (!urlString) return ["https://moonchan.xyz/favicon.ico"];
+    if (!urlString) return ["/favicon.ico"];
     try {
         const originalUrl = new URL(urlString);
 
         if (["e-hentai.org", "exhentai.org", "ehwv.moonchan.xyz", "ex.moonchan.xyz"].includes(originalUrl.host)) {
-            return [validEhentaiUrl(urlString), "https://moonchan.xyz/favicon.ico"]
+            return [validEhentaiUrl(urlString), "/favicon.ico"]
         }
     } catch (e) {
         console.log("Invalid URL in getTryList:", urlString, e);
-        return ["https://moonchan.xyz/favicon.ico"];
+        return ["/favicon.ico"];
     }
 
-    return [urlString, previewUrl(urlString), "https://moonchan.xyz/favicon.ico"]
+    return [urlString, previewUrl(urlString), "/favicon.ico"]
 }
 
 const PlayIcon = () => (
@@ -156,7 +156,8 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
         return url.endsWith(".m4a") ||
             url.endsWith(".mp3") ||
             url.endsWith(".webm") ||
-            url.endsWith(".mp4");
+            url.endsWith(".mp4") ||
+            url.endsWith(".mov");
     }
 
     const defaultLinkClasses = "flex w-fit"; // w-fit might be an issue with relative parent for absolute child
@@ -164,7 +165,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
     const defaultImageClasses = "max-w-64 max-h-40 object-cover border border-gray-200 rounded-sm";
 
     // Fallback image source if all retries fail
-    const currentImageSrc = tryList[index] || "https://moonchan.xyz/favicon.ico";
+    const currentImageSrc = tryList[index] || "/favicon.ico";
 
 
     const handleImageError = () => {
@@ -197,6 +198,7 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
             <source src={imageUrl} type="video/webm" />
             <source src={imageUrl} type="audio/mpeg" />
             <source src={imageUrl} type="video/m4a" />
+            <source src={imageUrl} type="video/quicktime" />
         </video>
     )
 
