@@ -36,6 +36,8 @@ export default defineConfig({
     }
   },
   build: {
+    
+    sourcemap: true,
     // target: 'es2015',
     minify: 'terser',
     terserOptions: {
@@ -43,6 +45,7 @@ export default defineConfig({
         drop_console: true
       }
     }
+
   },
   optimizeDeps: {
     include: ['core-js']

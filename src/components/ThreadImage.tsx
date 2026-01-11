@@ -26,6 +26,7 @@ interface ThreadImageProps {
 
 const previewUrl = (urlString: string): string => {
   if (!urlString) return "/favicon.ico"; // Handle empty urlString
+
   try {
     const originalUrl = new URL(urlString);
     const originalHost = originalUrl.host;
@@ -47,11 +48,7 @@ const previewUrl = (urlString: string): string => {
     else if (["toto.im"].includes(parseRootDomain(originalHost))) {
       originalUrl.searchParams.set("proxy_host", "wx1.sinaimg.cn");
       originalUrl.searchParams.set("proxy_referer", "https://weibo.com/");
-    } else if (
-      ["wangmoyuimg.cdn.dfyun.com.cn", "totoimg.cdn.dfyun.com.cn"].includes(
-        parseRootDomain(originalHost)
-      )
-    ) {
+    } else if (parseRootDomain(originalHost) == "com.cn") {
       originalUrl.searchParams.set("proxy_referer", "https://jandan.net/");
     }
 
@@ -87,6 +84,15 @@ function getHrefUrl(urlString: string): string {
       originalUrl.searchParams.set("proxy_host", originalHost);
       originalUrl.searchParams.set("proxy_referer", "https://weibo.com");
       return originalUrl.href;
+    }
+
+    if (
+      ["wangmoyuimg.cdn.dfyun.com.cn", "totoimg.cdn.dfyun.com.cn"].includes(
+        parseRootDomain(originalHost)
+      ) ||
+      parseRootDomain(originalHost).includes("dfyun.com.cn")
+    ) {
+      originalUrl.searchParams.set("proxy_referer", "https://jandan.net/");
     }
   } catch (e) {
     console.log("Error parsing URL in getHrefUrl for:", urlString, e);
@@ -255,7 +261,6 @@ const ThreadImage: React.FC<ThreadImageProps> = ({
       <img
         src={currentImageSrc}
         referrerPolicy={
-          currentImageSrc.startsWith("https://proxy.moonchan") ||
           currentImageSrc.startsWith("https://upload.moonchan")
             ? ""
             : "no-referrer"
