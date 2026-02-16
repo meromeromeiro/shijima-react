@@ -30,6 +30,12 @@ const previewUrl = (urlString: string): string => {
   try {
     const originalUrl = new URL(urlString);
     const originalHost = originalUrl.host;
+
+    if (originalUrl.protocol == "http:") {
+      originalUrl.searchParams.set("proxy_scheme", "http")
+      originalUrl.protocol = "https:"
+    }
+
     if (originalHost === "proxy.moonchan.xyz") {
       return urlString;
     } else if (["pbs.twimg.com"].includes(originalHost)) {
