@@ -5,7 +5,7 @@ import ReplyRenderer from './ReplyRenderer';
 import ThreadImage from './ThreadImage.tsx'
 import { formatUtcToLocalReadableTS } from '../services/utils.ts'
 import LazyLoadPlaceholder from './LazyLoadPlaceholder.tsx';
-function ReplyItem({ reply, opNo, pn }: { reply: Thread, opNo: number, pn: number }) {
+function ReplyItem({ reply, opNo, pn }: { reply: Thread, opNo: number, pn?: number }) {
   if (!reply) return null;
 
   const [searchParams, setSearchParams] = useSearchParams();
