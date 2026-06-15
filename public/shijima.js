@@ -340,22 +340,22 @@ window.onload = function () {
                 }
                 h = h.replace("i.pximg.net", "pximg.moonchan.xyz")
                 h = h.replace("pbs.twimg.com", "twimg.moonchan.xyz")
-                h = h.replace("ex.moonchan.xyz", "ehwv.moonchan.xyz/image")
-                h = h.replace("ex.nmbyd1.top", "ehwv.moonchan.xyz/image")
-                h = h.replace("ex.nmbyd2.top", "ehwv.moonchan.xyz/image")
-                h = h.replace("exhentai.org", "ehwv.moonchan.xyz/image")
-                h = h.replace("e-hentai.org", "ehwv.moonchan.xyz/image")
+                h = h.replace("ex.moonchan.xyz", "ex.moonchan.xyz/image")
+                h = h.replace("ex.nmbyd1.top", "ex.moonchan.xyz/image")
+                h = h.replace("ex.nmbyd2.top", "ex.moonchan.xyz/image")
+                h = h.replace("exhentai.org", "ex.moonchan.xyz/image")
+                h = h.replace("e-hentai.org", "ex.moonchan.xyz/image")
                 return h
             },
             redirect: function (h) {
                 console.log(h)
                 h = h.replace("i.pximg.net", "pximg.moonchan.xyz")
                 h = h.replace("pbs.twimg.com", "twimg.moonchan.xyz")
-                h = h.replace("ex.moonchan.xyz", "ehwv.moonchan.xyz/image")
-                h = h.replace("ex.nmbyd1.top", "ehwv.moonchan.xyz/image")
-                h = h.replace("ex.nmbyd2.top", "ehwv.moonchan.xyz/image")
-                h = h.replace("exhentai.org", "ehwv.moonchan.xyz/image")
-                h = h.replace("e-hentai.org", "ehwv.moonchan.xyz/image")
+                h = h.replace("ex.moonchan.xyz", "ex.moonchan.xyz/image")
+                h = h.replace("ex.nmbyd1.top", "ex.moonchan.xyz/image")
+                h = h.replace("ex.nmbyd2.top", "ex.moonchan.xyz/image")
+                h = h.replace("exhentai.org", "ex.moonchan.xyz/image")
+                h = h.replace("e-hentai.org", "ex.moonchan.xyz/image")
                 return h
             },
             txtFilter: function (t) {

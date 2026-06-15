@@ -33,11 +33,11 @@ export const picCheckerFilter = (url) => {
     let newUrl = url;
     newUrl = newUrl.replace("i.pximg.net", "pximg.moonchan.xyz");
     newUrl = newUrl.replace("pbs.twimg.com", "twimg.moonchan.xyz");
-    newUrl = newUrl.replace("ex.moonchan.xyz", "ehwv.moonchan.xyz/image");
-    newUrl = newUrl.replace("ex.nmbyd1.top", "ehwv.moonchan.xyz/image");
-    newUrl = newUrl.replace("ex.nmbyd2.top", "ehwv.moonchan.xyz/image");
-    newUrl = newUrl.replace("exhentai.org", "ehwv.moonchan.xyz/image");
-    newUrl = newUrl.replace("e-hentai.org", "ehwv.moonchan.xyz/image");
+    newUrl = newUrl.replace("ex.moonchan.xyz", "ex.moonchan.xyz/image");
+    newUrl = newUrl.replace("ex.nmbyd1.top", "ex.moonchan.xyz/image");
+    newUrl = newUrl.replace("ex.nmbyd2.top", "ex.moonchan.xyz/image");
+    newUrl = newUrl.replace("exhentai.org", "ex.moonchan.xyz/image");
+    newUrl = newUrl.replace("e-hentai.org", "ex.moonchan.xyz/image");
     return newUrl;
 };
 
