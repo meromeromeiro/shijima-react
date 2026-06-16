@@ -11,7 +11,7 @@ export function validEhentaiUrl(urlString: string): string {
     // 保存原始host（包含端口号）
     let originalHost = originalUrl.host;
     if (["e-hentai.org", "exhentai.org", "ehwb.moonchan.xyz", "ex.moonchan.xyz"].includes(originalHost)) {
-        originalUrl.host = "ehwv.moonchan.xyz"
+        originalUrl.host = "ex.moonchan.xyz"
     } else {
         return urlString;
     }
