@@ -1,4 +1,4 @@
-const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload';
+const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload?dest=azure';
 function getURL(id: string, filename: string) {
     return `https://upload.moonchan.xyz/api/${id}/${filename}`
 }
