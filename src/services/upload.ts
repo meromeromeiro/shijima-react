@@ -1,7 +1,4 @@
-const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload?dest=azure';
-function getURL(id: string, filename: string) {
-    return `https://upload.moonchan.xyz/api/${id}/${filename}`
-}
+const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload';
 
 export function uploadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -14,7 +11,7 @@ export function uploadFile(file: File): Promise<string> {
             }
             return response.json();
         }).then((data) => {
-            resolve(getURL(data.id, file.name));
+            resolve(data.url);
         }).catch((error) => {
             reject(error);
         });
