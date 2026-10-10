@@ -1,4 +1,4 @@
-const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload';
+const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload/r2';
 
 export function uploadFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
