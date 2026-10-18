@@ -1,7 +1,7 @@
-const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload/r2';
+const UPLOAD_ENDPOINT = 'https://upload.moonchan.xyz/api/upload';
 
 /**
- * 把上传文件的原始名清理成可作为 R2 对象 key 的安全 basename（保留扩展名）。
+ * 把上传文件的原始名清理成可作为存储 key 的安全 basename（保留扩展名）。
  * - 只取 basename：剥离任意目录段（/ 与 \），防目录穿越
  * - 中和连续点号 `..`，避免回到上级 key
  * - 去掉文件系统非法字符与控制字符，折叠空白，限长
@@ -20,27 +20,36 @@ function safeFilename(name: string): string {
     return safe;
 }
 
-export function uploadFile(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        // POST multipart：浏览器把 file.name 写入 part 的 Content-Disposition filename，
-        // moonchan 后端据此把 R2 对象 key 设为「文件名.ext」，返回的 url 形如
-        // https://r2.moonchan.xyz/<unix_ts>/<文件名.ext>。
-        // （旧实现用 PUT 原始 body，无文件名，后端回落用 dest 名「r2」当 key，
-        //   故链接末段是 r2。）
-        const form = new FormData();
-        form.append('file', file, safeFilename(file.name));
-        fetch(UPLOAD_ENDPOINT, {
-            method: 'POST',
-            body: form,
-        }).then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        }).then((data) => {
-            resolve(data.url);
-        }).catch((error) => {
-            reject(error);
-        });
+/**
+ * 上传文件：统一使用 Raw Data（原始字节），禁止 FormData / multipart。
+ *
+ * 后端 azure-go（upload.moonchan.xyz）把请求体原样流式写入存储：
+ * r2 驱动 verbatim 存储，multipart 信封会被整段入库——图片损坏、
+ * Content-Type 变成 multipart/form-data、后端也读不到文件名（fallback uuid）。
+ * 全程不得出现 form-data。
+ *
+ * 参考 azure-go static/index.html 官方客户端：
+ *   PUT /api/upload/<文件名>，请求头 Content-Type = 文件真实 MIME，body = 原始字节。
+ * 不带 dest → 服务端按类型分流：webp/png/jpg/jpeg/gif/bmp → p.sda1.dev，其余(含 avif) → r2。
+ * 文件名走 URL 路径（后端 filenameFromRequest 优先取路径 fn），
+ * 不设 X-File-Name：upload.moonchan.xyz 的 CORS Allow-Headers 不含它，
+ * 跨源的 moonchan.xyz 页面带上它 preflight 会被浏览器拦掉。
+ */
+export async function uploadFile(file: File): Promise<string> {
+    const fileName = safeFilename(file.name);
+    const contentType = file.type || 'application/octet-stream';
+    const uploadUrl = `${UPLOAD_ENDPOINT}/${encodeURIComponent(fileName)}`;
+
+    const response = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': contentType,
+        },
+        body: file, // 原始字节，不是 form-data
     });
+    if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.url;
 }
